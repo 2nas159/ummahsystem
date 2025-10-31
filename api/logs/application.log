@@ -1,0 +1,60 @@
+[2025-10-31 14:58:24] [INFO] Application started {"ip":"::1","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/141.0.0.0 Safari\/537.36 Edg\/141.0.0.0","request_uri":"\/ummahsystem\/api\/notifications.php?action=get&limit=5"}
+[2025-10-31 14:58:24] [ERROR] Warning: Undefined array key "unread_only" in C:\xampp\htdocs\ummahsystem\api\notifications.php on line 27 {"severity":2,"file":"C:\\xampp\\htdocs\\ummahsystem\\api\\notifications.php","line":27}
+[2025-10-31 14:58:24] [ERROR] Get notifications error: Query execution failed
+[2025-10-31 14:58:24] [ERROR] Get unread count error: Query execution failed
+[2025-10-31 14:58:39] [INFO] Application started {"ip":"::1","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/141.0.0.0 Safari\/537.36 Edg\/141.0.0.0","request_uri":"\/ummahsystem\/api\/notifications.php?action=get&limit=5"}
+[2025-10-31 14:58:39] [ERROR] Warning: Undefined array key "unread_only" in C:\xampp\htdocs\ummahsystem\api\notifications.php on line 27 {"severity":2,"file":"C:\\xampp\\htdocs\\ummahsystem\\api\\notifications.php","line":27}
+[2025-10-31 14:58:39] [ERROR] Get notifications error: Query execution failed
+[2025-10-31 14:58:39] [ERROR] Get unread count error: Query execution failed
+[2025-10-31 14:58:51] [INFO] Application started {"ip":"::1","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/141.0.0.0 Safari\/537.36 Edg\/141.0.0.0","request_uri":"\/ummahsystem\/api\/notifications.php?action=get&limit=5"}
+[2025-10-31 14:58:51] [ERROR] Warning: Undefined array key "unread_only" in C:\xampp\htdocs\ummahsystem\api\notifications.php on line 27 {"severity":2,"file":"C:\\xampp\\htdocs\\ummahsystem\\api\\notifications.php","line":27}
+[2025-10-31 14:58:51] [ERROR] Get notifications error: Query execution failed
+[2025-10-31 14:58:51] [ERROR] Get unread count error: Query execution failed
+[2025-10-31 14:59:21] [INFO] Application started {"ip":"::1","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/141.0.0.0 Safari\/537.36 Edg\/141.0.0.0","request_uri":"\/ummahsystem\/api\/notifications.php?action=get&limit=5"}
+[2025-10-31 14:59:21] [ERROR] Warning: Undefined array key "unread_only" in C:\xampp\htdocs\ummahsystem\api\notifications.php on line 27 {"severity":2,"file":"C:\\xampp\\htdocs\\ummahsystem\\api\\notifications.php","line":27}
+[2025-10-31 14:59:21] [ERROR] Get notifications error: Query execution failed
+[2025-10-31 14:59:21] [ERROR] Get unread count error: Query execution failed
+[2025-10-31 14:59:21] [INFO] Application started {"ip":"::1","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/141.0.0.0 Safari\/537.36 Edg\/141.0.0.0","request_uri":"\/ummahsystem\/api\/notifications.php?action=unread_count"}
+[2025-10-31 14:59:21] [ERROR] Get unread count error: Query execution failed
+[2025-10-31 14:59:51] [INFO] Application started {"ip":"::1","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/141.0.0.0 Safari\/537.36 Edg\/141.0.0.0","request_uri":"\/ummahsystem\/api\/notifications.php?action=unread_count"}
+[2025-10-31 14:59:51] [ERROR] Get unread count error: Query execution failed
+[2025-10-31 14:59:51] [INFO] Application started {"ip":"::1","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/141.0.0.0 Safari\/537.36 Edg\/141.0.0.0","request_uri":"\/ummahsystem\/api\/notifications.php?action=get&limit=5"}
+[2025-10-31 14:59:51] [ERROR] Warning: Undefined array key "unread_only" in C:\xampp\htdocs\ummahsystem\api\notifications.php on line 27 {"severity":2,"file":"C:\\xampp\\htdocs\\ummahsystem\\api\\notifications.php","line":27}
+[2025-10-31 14:59:51] [ERROR] Get notifications error: Query execution failed
+[2025-10-31 14:59:51] [ERROR] Get unread count error: Query execution failed
+[2025-10-31 15:00:21] [INFO] Application started {"ip":"::1","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/141.0.0.0 Safari\/537.36 Edg\/141.0.0.0","request_uri":"\/ummahsystem\/api\/notifications.php?action=get&limit=5"}
+[2025-10-31 15:00:21] [ERROR] Warning: Undefined array key "unread_only" in C:\xampp\htdocs\ummahsystem\api\notifications.php on line 27 {"severity":2,"file":"C:\\xampp\\htdocs\\ummahsystem\\api\\notifications.php","line":27}
+[2025-10-31 15:00:21] [ERROR] Get notifications error: Query execution failed
+[2025-10-31 15:00:21] [ERROR] Get unread count error: Query execution failed
+[2025-10-31 15:00:21] [INFO] Application started {"ip":"::1","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/141.0.0.0 Safari\/537.36 Edg\/141.0.0.0","request_uri":"\/ummahsystem\/api\/notifications.php?action=unread_count"}
+[2025-10-31 15:00:21] [ERROR] Get unread count error: Query execution failed
+[2025-10-31 15:00:51] [INFO] Application started {"ip":"::1","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/141.0.0.0 Safari\/537.36 Edg\/141.0.0.0","request_uri":"\/ummahsystem\/api\/notifications.php?action=get&limit=5"}
+[2025-10-31 15:00:51] [ERROR] Warning: Undefined array key "unread_only" in C:\xampp\htdocs\ummahsystem\api\notifications.php on line 27 {"severity":2,"file":"C:\\xampp\\htdocs\\ummahsystem\\api\\notifications.php","line":27}
+[2025-10-31 15:00:51] [ERROR] Get notifications error: Query execution failed
+[2025-10-31 15:00:51] [ERROR] Get unread count error: Query execution failed
+[2025-10-31 15:00:51] [INFO] Application started {"ip":"::1","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/141.0.0.0 Safari\/537.36 Edg\/141.0.0.0","request_uri":"\/ummahsystem\/api\/notifications.php?action=unread_count"}
+[2025-10-31 15:00:51] [ERROR] Get unread count error: Query execution failed
+[2025-10-31 15:01:21] [INFO] Application started {"ip":"::1","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/141.0.0.0 Safari\/537.36 Edg\/141.0.0.0","request_uri":"\/ummahsystem\/api\/notifications.php?action=unread_count"}
+[2025-10-31 15:01:21] [ERROR] Get unread count error: Query execution failed
+[2025-10-31 15:01:21] [INFO] Application started {"ip":"::1","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/141.0.0.0 Safari\/537.36 Edg\/141.0.0.0","request_uri":"\/ummahsystem\/api\/notifications.php?action=get&limit=5"}
+[2025-10-31 15:01:21] [ERROR] Warning: Undefined array key "unread_only" in C:\xampp\htdocs\ummahsystem\api\notifications.php on line 27 {"severity":2,"file":"C:\\xampp\\htdocs\\ummahsystem\\api\\notifications.php","line":27}
+[2025-10-31 15:01:21] [ERROR] Get notifications error: Query execution failed
+[2025-10-31 15:01:21] [ERROR] Get unread count error: Query execution failed
+[2025-10-31 15:01:51] [INFO] Application started {"ip":"::1","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/141.0.0.0 Safari\/537.36 Edg\/141.0.0.0","request_uri":"\/ummahsystem\/api\/notifications.php?action=unread_count"}
+[2025-10-31 15:01:51] [ERROR] Get unread count error: Query execution failed
+[2025-10-31 15:01:51] [INFO] Application started {"ip":"::1","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/141.0.0.0 Safari\/537.36 Edg\/141.0.0.0","request_uri":"\/ummahsystem\/api\/notifications.php?action=get&limit=5"}
+[2025-10-31 15:01:51] [ERROR] Warning: Undefined array key "unread_only" in C:\xampp\htdocs\ummahsystem\api\notifications.php on line 27 {"severity":2,"file":"C:\\xampp\\htdocs\\ummahsystem\\api\\notifications.php","line":27}
+[2025-10-31 15:01:51] [ERROR] Get notifications error: Query execution failed
+[2025-10-31 15:01:51] [ERROR] Get unread count error: Query execution failed
+[2025-10-31 15:02:45] [INFO] Application started {"ip":"::1","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/141.0.0.0 Safari\/537.36 Edg\/141.0.0.0","request_uri":"\/ummahsystem\/api\/notifications.php?action=unread_count"}
+[2025-10-31 15:02:45] [ERROR] Get unread count error: Query execution failed
+[2025-10-31 15:02:45] [INFO] Application started {"ip":"::1","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/141.0.0.0 Safari\/537.36 Edg\/141.0.0.0","request_uri":"\/ummahsystem\/api\/notifications.php?action=get&limit=5"}
+[2025-10-31 15:02:45] [ERROR] Warning: Undefined array key "unread_only" in C:\xampp\htdocs\ummahsystem\api\notifications.php on line 27 {"severity":2,"file":"C:\\xampp\\htdocs\\ummahsystem\\api\\notifications.php","line":27}
+[2025-10-31 15:02:45] [ERROR] Get notifications error: Query execution failed
+[2025-10-31 15:02:45] [ERROR] Get unread count error: Query execution failed
+[2025-10-31 15:03:01] [INFO] Application started {"ip":"::1","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/141.0.0.0 Safari\/537.36 Edg\/141.0.0.0","request_uri":"\/ummahsystem\/api\/notifications.php?action=unread_count"}
+[2025-10-31 15:03:01] [ERROR] Get unread count error: Query execution failed
+[2025-10-31 15:03:01] [INFO] Application started {"ip":"::1","user_agent":"Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/141.0.0.0 Safari\/537.36 Edg\/141.0.0.0","request_uri":"\/ummahsystem\/api\/notifications.php?action=get&limit=5"}
+[2025-10-31 15:03:01] [ERROR] Warning: Undefined array key "unread_only" in C:\xampp\htdocs\ummahsystem\api\notifications.php on line 27 {"severity":2,"file":"C:\\xampp\\htdocs\\ummahsystem\\api\\notifications.php","line":27}
+[2025-10-31 15:03:01] [ERROR] Get notifications error: Query execution failed
+[2025-10-31 15:03:01] [ERROR] Get unread count error: Query execution failed

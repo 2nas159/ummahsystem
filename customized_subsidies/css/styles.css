@@ -1,0 +1,273 @@
+.dashboard-container {
+  padding: 20px;
+}
+
+.top-bar {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.search-box {
+  position: relative;
+  width: 300px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 8px 35px 8px 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.search-box i {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-card-content h3 {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.stat-card-content h2 {
+  color: #333;
+  font-size: 24px;
+  margin: 0;
+}
+
+.stat-card-icon {
+  width: 50px;
+  height: 50px;
+  background: #f8f9fa;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #007bff;
+}
+
+/* تنسيق الجدول */
+.table-container {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.table {
+  width: 100%;
+  table-layout: auto;
+  margin: 0;
+  border-collapse: collapse;
+}
+
+/* تعديل عرض الأعمدة بنسب مئوية */
+.col-number {
+  width: 3%;
+}
+.col-name {
+  width: 17%;
+}
+.col-phone {
+  width: 10%;
+}
+.col-kimlik {
+  width: 10%;
+}
+.col-iban {
+  width: 22%;
+}
+.col-payment {
+  width: 15%;
+}
+.col-actions {
+  width: 13%;
+}
+
+/* تنسيق الخلايا */
+.table th,
+.table td {
+  padding: 8px;
+  text-align: right;
+  vertical-align: middle;
+  border: 1px solid #dee2e6;
+  font-size: 14px;
+}
+
+/* تنسيق خاص للـ IBAN */
+.iban-cell {
+  direction: ltr;
+  text-align: left;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+/* تنسيق الأزرار */
+.action-buttons {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+
+.btn-sm {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+/* تنسيق حقول الإدخال */
+.form-control,
+.form-select {
+  padding: 4px 8px;
+  font-size: 13px;
+  height: auto;
+}
+
+/* تحسين مظهر الصفوف */
+.table tbody tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+.table tbody tr:hover {
+  background-color: #f3f3f3;
+}
+
+/* تنسيق رأس الجدول */
+.table thead th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  text-align: center;
+  padding: 12px 8px;
+}
+
+/* تنسيق قسم الفلاتر */
+.filters-container {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 0;
+}
+
+.form-label {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.search-box {
+  position: relative;
+}
+
+.search-box .fa-search {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+}
+
+.search-box input {
+  padding-right: 30px;
+}
+
+/* تنسيق القوائم المنسدلة */
+.form-select {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 0.75rem center !important; /* تغيير موقع السهم إلى اليمين */
+    background-size: 16px 12px !important;
+    padding-left: 0.75rem !important;
+    padding-right: 2rem !important; /* تعديل المسافة الداخلية */
+    direction: rtl !important;
+}
+
+/* تنسيق خاص للقوائم المنسدلة في الجدول */
+.form-select option {
+    direction: rtl !important;
+    text-align: right !important;
+}
+
+/* تأكيد من عدم وجود سهم افتراضي */
+select::-ms-expand {
+    display: none !important;
+}
+
+/* تنسيق خاص للقوائم المنسدلة في الجدول */
+.payment-type-select {
+    width: 100%;
+    min-width: 120px;
+}
+
+/* تنسيق Modal الصورة */
+#imageModal .modal-body {
+    padding: 0;
+    background-color: #f8f9fa;
+}
+
+#kimlikImage {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+/* تنسيق زر عرض الصورة */
+.btn-view-kimlik {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+/* تنسيق قسم زر التسجيل */
+.submit-section {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.submit-section .btn-primary {
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 200px;
+}
+
+.submit-section .btn-primary i {
+    font-size: 18px;
+}
+
+/* تأثير hover */
+.submit-section .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}

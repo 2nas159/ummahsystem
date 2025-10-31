@@ -1,0 +1,220 @@
+/* RTL Theme Variables and Base Tokens */
+:root {
+    /* Brand Palette */
+    --primary-700: #2E7D32; /* green */
+    --secondary-700: #1565C0; /* blue */
+    --accent-700: #F9A825; /* amber */
+
+    /* Neutrals */
+    --neutral-25: #F7F9FC;
+    --neutral-50: #F1F5F9;
+    --neutral-100: #E2E8F0;
+    --neutral-700: #475569;
+    --neutral-900: #0F172A;
+
+    /* Surfaces */
+    --surface: #FFFFFF;
+    --content-bg: var(--neutral-25);
+    --app-chrome: #0B0F14;
+
+    /* Borders & Shadows */
+    --border: var(--neutral-100);
+    --radius-sm: 8px;
+    --radius-md: 10px;
+    --radius-lg: 12px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+
+    /* Text */
+    --text-strong: var(--neutral-900);
+    --text-muted: var(--neutral-700);
+}
+
+/* Base Layout Colors */
+body {
+    background-color: var(--content-bg);
+    color: var(--text-strong);
+}
+
+/* Remove forced dark/light header backgrounds */
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--primary-700) !important;
+    border-color: var(--primary-700) !important;
+}
+.btn-outline-primary {
+    color: var(--primary-700) !important;
+    border-color: var(--primary-700) !important;
+}
+.btn-outline-primary:hover {
+    background-color: var(--primary-700) !important;
+    color: #fff !important;
+}
+
+/* Cards & Surfaces */
+.card {
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    border-color: var(--border);
+}
+
+/* Tables */
+.table thead th {
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    z-index: 1;
+}
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: var(--neutral-50);
+}
+
+/* Forms */
+.form-control, .form-select {
+    border-radius: var(--radius-sm);
+}
+
+/* Removed forced sidebar theming */
+
+/* Toast utility */
+.toastify {
+    position: fixed;
+    inset-inline-start: 24px; /* RTL friendly */
+    bottom: 24px;
+    background: var(--neutral-900);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    z-index: 1080;
+}
+
+/* Accessible focus styles */
+a:focus, button:focus, .form-control:focus, .btn:focus {
+    outline: 3px solid rgba(21, 101, 192, 0.4) !important; /* secondary-700 */
+    outline-offset: 2px;
+    box-shadow: none !important;
+}
+
+/* Global design system tokens and Bootstrap variable overrides */
+
+/* Base (light) theme */
+:root {
+  /* Brand */
+  --brand-primary: #0ea5e9; /* sky-500 */
+  --brand-primary-600: #0284c7;
+  --brand-primary-700: #0369a1;
+  --brand-accent: #38bdf8;
+
+  /* Neutrals */
+  --neutral-50: #f8fafc;
+  --neutral-100: #f1f5f9;
+  --neutral-200: #e2e8f0;
+  --neutral-300: #cbd5e1;
+  --neutral-400: #94a3b8;
+  --neutral-500: #64748b;
+  --neutral-600: #475569;
+  --neutral-700: #334155;
+  --neutral-800: #1e293b;
+  --neutral-900: #0f172a;
+
+  /* Semantic */
+  --success-500: #22c55e;
+  --warning-500: #f59e0b;
+  --danger-500: #ef4444;
+
+  /* Typography */
+  --font-family-base: 'Cairo', system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-size-100: 12px;
+  --font-size-200: 14px;
+  --font-size-300: 16px;
+  --font-size-400: 18px;
+  --font-size-500: 20px;
+  --line-height: 1.6;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Radius & shadows */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 6px 16px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 12px 24px rgba(15, 23, 42, 0.12);
+
+  /* Bootstrap variable bridges */
+  --bs-primary: var(--brand-primary);
+  --bs-primary-rgb: 14, 165, 233;
+  --bs-body-bg: #ffffff;
+  --bs-body-color: var(--neutral-800);
+  --bs-border-color: var(--neutral-200);
+  --bs-border-radius: var(--radius-md);
+  --bs-link-color: var(--brand-primary-600);
+  --bs-link-hover-color: var(--brand-primary-700);
+}
+
+/* Dark theme overrides (Bootstrap 5.3 data attribute) */
+[data-bs-theme="dark"] {
+  --bs-body-bg: var(--neutral-900);
+  --bs-body-color: var(--neutral-100);
+  --bs-border-color: var(--neutral-800);
+  --bs-link-color: var(--brand-accent);
+  --bs-link-hover-color: var(--brand-primary);
+}
+
+/* Sidebar theming centralized */
+.sidebar {
+  background-color: var(--neutral-800) !important;
+  border-color: var(--neutral-700) !important;
+}
+.sidebar .bg-body-tertiary,
+.sidebar.bg-body-tertiary,
+.sidebar .offcanvas,
+.sidebar .offcanvas-md,
+.sidebar .offcanvas-end {
+  background-color: var(--neutral-800) !important;
+  border-color: var(--neutral-700) !important;
+}
+.sidebar .nav-link { color: var(--neutral-50) !important; }
+.sidebar .nav-link:hover { background: var(--neutral-700); }
+.sidebar .nav-link.active { background: var(--brand-primary); color: #fff !important; }
+.sidebar .text-body-secondary, .sidebar .sidebar-heading { color: var(--neutral-400) !important; }
+.sidebar hr { border-color: var(--neutral-700); }
+
+/* Cards */
+.card { border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
+
+/* Buttons */
+.btn-primary {
+  --bs-btn-bg: var(--brand-primary);
+  --bs-btn-border-color: var(--brand-primary);
+  --bs-btn-hover-bg: var(--brand-primary-600);
+  --bs-btn-hover-border-color: var(--brand-primary-600);
+}
+
+/* Forms */
+.form-control, .form-select {
+  border-radius: var(--radius-sm);
+}
+.form-control:focus, .form-select:focus {
+  box-shadow: 0 0 0 0.25rem rgba(14,165,233,0.25);
+  border-color: var(--brand-primary);
+}
+
+/* Tables */
+.table { --bs-table-striped-bg: rgba(14,165,233,0.04); }
+
+/* Typography apply */
+body { font-family: var(--font-family-base); font-size: var(--font-size-300); line-height: var(--line-height); }
+
+/* RTL helpers are handled elsewhere; keep neutral here */
+
+
