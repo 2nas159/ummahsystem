@@ -1,42 +1,110 @@
 <?php
+session_start();
 include("reports_db.php");
+include("includes/csrf_helper.php");
 
-// Check if the form was submitted
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get form data
-    $file_name = $_POST['file_name'];  // Capture the file name
-    $goals = $_POST['goals'];
-    $tasks = $_POST['tasks'];
-    $number_of_individuals = $_POST['number_of_individuals'];
-    $negatives_and_obstacles = $_POST['negatives_and_obstacles'];
-    $evaluation = $_POST['evaluation'];
-    $amount = $_POST['amount'];
-    $completion_percentage = $_POST['completion_percentage'];
-    $notes_and_recommendations = $_POST['notes_and_recommendations'];
-    $report_month = $_POST['report_month'];
-
-    // Insert data into the database for each goal/task/etc.
-    $sql = "INSERT INTO operation_plan_report 
-            (file_name, goals, tasks, number_of_individuals, negatives_and_obstacles, evaluation, amount, completion_percentage, notes_and_recommendations, report_month) 
-            VALUES 
-            (:file_name, :goals, :tasks, :number_of_individuals, :negatives_and_obstacles, :evaluation, :amount, :completion_percentage, :notes_and_recommendations, :report_month)";
-
-    $stmt = $pdo->prepare($sql);
-
-    for ($i = 0; $i < count($goals); $i++) {
-        $stmt->execute([
-            ':file_name' => $file_name,  // Save the file name
-            ':goals' => $goals[$i],
-            ':tasks' => $tasks[$i],
-            ':number_of_individuals' => $number_of_individuals[$i],
-            ':negatives_and_obstacles' => $negatives_and_obstacles[$i],
-            ':evaluation' => $evaluation[$i],
-            ':amount' => $amount[$i],
-            ':completion_percentage' => $completion_percentage[$i],
-            ':notes_and_recommendations' => $notes_and_recommendations[$i],
-            ':report_month' => $report_month,
-        ]);
-    }
-
-    header ('Location: view_reports.php');
+// Check authentication
+if (!isset($_SESSION["username"])) {
+    header("Location: index.php");
+    exit;
 }
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Verify CSRF token
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        $_SESSION['error_message'] = 'خطأ أمني: رمز التحقق غير صحيح';
+        header('Location: reports.php');
+        exit;
+    }
+    
+    try {
+        $pdo->beginTransaction();
+        
+        // Validate and sanitize inputs
+        $report_name = trim($_POST['report_name'] ?? '');
+        $report_month = $_POST['report_month'] ?? '';
+        $report_type = $_POST['report_type'] ?? 'monthly';
+        $status = $_POST['status'] ?? 'draft';
+        
+        // Validation
+        if (empty($report_name)) {
+            throw new Exception('اسم التقرير مطلوب');
+        }
+        
+        if (empty($report_month)) {
+            throw new Exception('شهر التقرير مطلوب');
+        }
+        
+        // Validate date format
+        if (!preg_match('/^\d{4}-\d{2}$/', $report_month)) {
+            throw new Exception('صيغة التاريخ غير صحيحة');
+        }
+        
+        $user_id = getCurrentUserId();
+        
+        // Insert report metadata
+        $stmt = $pdo->prepare("
+            INSERT INTO reports (report_name, report_month, report_type, created_by, status) 
+            VALUES (:report_name, :report_month, :report_type, :created_by, :status)
+        ");
+        $stmt->execute([
+            ':report_name' => $report_name,
+            ':report_month' => $report_month . '-01',
+            ':report_type' => $report_type,
+            ':created_by' => $user_id,
+            ':status' => $status
+        ]);
+        
+        $report_id = $pdo->lastInsertId();
+        
+        // Insert report items
+        $goals = $_POST['goals'] ?? [];
+        $stmt = $pdo->prepare("
+            INSERT INTO report_items 
+            (report_id, goal, tasks, number_of_individuals, negatives_and_obstacles, 
+             evaluation, amount, completion_percentage, notes_and_recommendations, item_order) 
+            VALUES (:report_id, :goal, :tasks, :number_of_individuals, :negatives_and_obstacles, 
+                    :evaluation, :amount, :completion_percentage, :notes_and_recommendations, :item_order)
+        ");
+        
+        $item_count = 0;
+        foreach ($goals as $index => $goal) {
+            $goal = trim($goal);
+            if (empty($goal)) continue; // Skip empty goals
+            
+            $stmt->execute([
+                ':report_id' => $report_id,
+                ':goal' => $goal,
+                ':tasks' => trim($_POST['tasks'][$index] ?? ''),
+                ':number_of_individuals' => (int)($_POST['number_of_individuals'][$index] ?? 0),
+                ':negatives_and_obstacles' => trim($_POST['negatives_and_obstacles'][$index] ?? ''),
+                ':evaluation' => trim($_POST['evaluation'][$index] ?? ''),
+                ':amount' => (float)($_POST['amount'][$index] ?? 0),
+                ':completion_percentage' => min(100, max(0, (float)($_POST['completion_percentage'][$index] ?? 0))),
+                ':notes_and_recommendations' => trim($_POST['notes_and_recommendations'][$index] ?? ''),
+                ':item_order' => $item_count++
+            ]);
+        }
+        
+        if ($item_count === 0) {
+            throw new Exception('يجب إضافة هدف واحد على الأقل');
+        }
+        
+        $pdo->commit();
+        $_SESSION['success_message'] = 'تم إنشاء التقرير بنجاح';
+        header('Location: view_reports.php');
+        exit;
+        
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        $_SESSION['error_message'] = 'خطأ: ' . $e->getMessage();
+        header('Location: reports.php');
+        exit;
+    }
+}
+
+// If not POST, redirect to reports.php
+header('Location: reports.php');
+exit;
+?>

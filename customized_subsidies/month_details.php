@@ -187,14 +187,23 @@ ob_start();
                         <?php while ($row = $result_beneficiaries->fetch_assoc()) { ?>
                             <tr id="beneficiary_row_<?php echo $row['id']; ?>">
                                 <td class="text-center"></td>
-                                <td class="text-center"><?php echo $row['name']; ?></td>
+                                <td class="text-center" data-full-name="<?php echo htmlspecialchars($row['name']); ?>" title="<?php echo htmlspecialchars($row['name']); ?>"><?php echo htmlspecialchars($row['name']); ?></td>
                                 <td class="text-center"><?php echo $row['phone']; ?></td>
                                 <td class="text-center"><?php echo $row['kimlik_number']; ?></td>
                                 <td class="text-center iban-cell"><?php echo $row['iban']; ?></td>
                                 <td class="text-center">
-                                    <input type="number" name="payments[<?php echo $row['id']; ?>][amount]" 
-                                           class="form-control text-center" placeholder="المبلغ" 
-                                           <?php echo $row['amount'] ? 'disabled value="' . $row['amount'] . '"' : ''; ?>>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input type="number" name="payments[<?php echo $row['id']; ?>][amount]" 
+                                               class="form-control text-center" placeholder="المبلغ" 
+                                               <?php echo $row['amount'] ? 'disabled value="' . $row['amount'] . '"' : ''; ?>>
+                                        <?php if ($row['amount'] && $row['payment_id']): ?>
+                                            <button type="button" class="btn btn-danger btn-sm" 
+                                                    onclick="deletePayment(<?php echo $row['payment_id']; ?>, <?php echo $row['id']; ?>)"
+                                                    title="حذف الدفعة">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
                                 <td class="text-center">
                                     <select name="payments[<?php echo $row['id']; ?>][sponsor_name]" 
@@ -375,7 +384,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 $content = ob_get_clean();
-include('header.php');
+$BASE_PATH_PREFIX = '../';
+require_once __DIR__ . '/../layout.php';
 ?>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -638,6 +648,40 @@ function deleteBeneficiary(id) {
         });
     }
 }
+
+function deletePayment(paymentId, beneficiaryId) {
+    if(confirm('هل أنت متأكد من حذف هذه الدفعة؟ سيتم حذف المبلغ ونوع الدفع فقط، ولن يتم حذف بيانات المستفيد.')) {
+        $.ajax({
+            url: 'delete_payment.php',
+            type: 'POST',
+            data: { 
+                payment_id: paymentId,
+                beneficiary_id: beneficiaryId,
+                year: <?php echo $year; ?>,
+                month: <?php echo $month; ?>
+            },
+            dataType: 'json',
+            success: function(response) {
+                if(response.success) {
+                    // إعادة تفعيل الحقول
+                    const row = $('#beneficiary_row_' + beneficiaryId);
+                    row.find('input[name*="[amount]"]').prop('disabled', false).val('');
+                    row.find('select[name*="[sponsor_name]"]').prop('disabled', false).val('');
+                    row.find('select[name*="[payment_type]"]').prop('disabled', false).val('');
+                    // إزالة زر الحذف
+                    row.find('button[onclick*="deletePayment"]').remove();
+                    alert('تم حذف الدفعة بنجاح');
+                } else {
+                    alert(response.message || 'حدث خطأ أثناء حذف الدفعة');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(error);
+                alert('حدث خطأ في الاتصال بالخادم');
+            }
+        });
+    }
+}
 </script>
 
 <!-- دالة عرض صورة الكملك -->
@@ -702,3 +746,34 @@ $(document).ready(function() {
     });
 });
 </script>
+
+<style>
+/* تقليل عرض عمود الاسم */
+.table thead th:nth-child(2),
+.table tbody td:nth-child(2) {
+    max-width: 150px;
+    width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* إضافة tooltip عند التمرير على الاسم */
+.table tbody td:nth-child(2) {
+    position: relative;
+}
+
+.table tbody td:nth-child(2):hover::after {
+    content: attr(data-full-name);
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-top: 5px;
+}
+</style>

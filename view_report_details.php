@@ -13,7 +13,10 @@ if (isset($_GET['file_name'])) {
 }
 ?>
 
-<?php include "header.php" ?>
+<?php
+$BASE_PATH_PREFIX = '';
+require_once __DIR__ . '/layout.php';
+?>
 
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
     <h2>Report: <?= htmlspecialchars($file_name) ?></h2>

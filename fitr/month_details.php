@@ -4,7 +4,7 @@ include('db_connection.php');
 $year = isset($_GET['year']) && is_numeric($_GET['year']) ? (int) $_GET['year'] : date('Y');
 
 // جلب بيانات المستفيدين في السنة المحددة
-$query_beneficiaries = "SELECT b.*, p.amount, p.payment_date, p.payment_type
+$query_beneficiaries = "SELECT b.*, p.id as payment_id, p.amount, p.payment_date, p.payment_type
                         FROM beneficiaries b 
                         LEFT JOIN payments p ON b.id = p.beneficiary_id 
                         AND YEAR(p.payment_date) = ?";
@@ -99,8 +99,17 @@ ob_start();
                             <td class="text-center"><?php echo $row['kimlik_number']; ?></td>
                             <td class="text-center"><?php echo $row['iban']; ?></td>
                             <td class="text-center">
-                                <input type="number" name="payments[<?php echo $row['id']; ?>][amount]" class="form-control" placeholder="المبلغ" 
-                                <?php echo $row['amount'] ? 'disabled value="' . $row['amount'] . '"' : ''; ?>>
+                                <div class="d-flex align-items-center gap-2">
+                                    <input type="number" name="payments[<?php echo $row['id']; ?>][amount]" class="form-control" placeholder="المبلغ" 
+                                    <?php echo $row['amount'] ? 'disabled value="' . $row['amount'] . '"' : ''; ?>>
+                                    <?php if ($row['amount'] && $row['payment_id']): ?>
+                                        <button type="button" class="btn btn-danger btn-sm" 
+                                                onclick="deletePayment(<?php echo $row['payment_id']; ?>, <?php echo $row['id']; ?>)"
+                                                title="حذف الدفعة">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
                             </td>
                             <td class="text-center">
                                 <select name="payments[<?php echo $row['id']; ?>][payment_type]" class="form-select" 
@@ -151,7 +160,8 @@ ob_start();
 
 <?php
 $content = ob_get_clean();
-include('header.php');
+$BASE_PATH_PREFIX = '../';
+require_once __DIR__ . '/../layout.php';
 ?>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -210,7 +220,7 @@ $(document).ready(function() {
     });
 
     // Replace the "Edit" button with "Save"
-    row.find('.btn-primary').replaceWith('<button type="button" class="btn btn-success btn-sm" onclick="saveBeneficiary(' + beneficiaryId + ')"><i class="fas fa-save"></i> حفظ</button>');
+    row.find('.btn-warning').replaceWith('<button type="button" class="btn btn-success btn-sm btn-icon" onclick="saveBeneficiary(' + beneficiaryId + ')"><i class="bi bi-check2-circle"></i><span>حفظ</span></button>');
 }
 
 function saveBeneficiary(beneficiaryId) {
@@ -237,7 +247,7 @@ function saveBeneficiary(beneficiaryId) {
                 row.find('td:eq(4)').text(updatedData.iban);
 
                 // Replace "Save" with "Edit"
-                row.find('.btn-success').replaceWith('<button type="button" class="btn btn-primary btn-sm" onclick="editBeneficiary(' + beneficiaryId + ')"><i class="fas fa-edit"></i> تعديل</button>');
+                row.find('.btn-success').replaceWith('<button type="button" class="btn btn-warning btn-sm btn-icon" onclick="editBeneficiary(' + beneficiaryId + ')"><i class="bi bi-pencil-square"></i><span>تعديل</span></button>');
             } else {
                 alert('Error: ' + response.error);
             }
@@ -272,6 +282,38 @@ function saveBeneficiary(beneficiaryId) {
         });
     }
 }
+
+function deletePayment(paymentId, beneficiaryId) {
+    if(confirm('هل أنت متأكد من حذف هذه الدفعة؟ سيتم حذف المبلغ ونوع الدفع فقط، ولن يتم حذف بيانات المستفيد.')) {
+        $.ajax({
+            url: 'delete_payment.php',
+            type: 'POST',
+            data: { 
+                payment_id: paymentId,
+                beneficiary_id: beneficiaryId,
+                year: <?php echo $year; ?>
+            },
+            dataType: 'json',
+            success: function(response) {
+                if(response.success) {
+                    // إعادة تفعيل الحقول
+                    const row = $('#beneficiary-row-' + beneficiaryId);
+                    row.find('input[name*="[amount]"]').prop('disabled', false).val('');
+                    row.find('select[name*="[payment_type]"]').prop('disabled', false).val('');
+                    // إزالة زر الحذف
+                    row.find('button[onclick*="deletePayment"]').remove();
+                    alert('تم حذف الدفعة بنجاح');
+                } else {
+                    alert(response.message || 'حدث خطأ أثناء حذف الدفعة');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(error);
+                alert('حدث خطأ في الاتصال بالخادم');
+            }
+        });
+    }
+}
 </script>
 
 <!-- NUMBERING BENEFICIARIES -->
@@ -293,22 +335,57 @@ $('#paymentsForm').on('submit', function(e) {
     e.preventDefault(); // منع الإرسال التقليدي للنموذج
 
     var paymentsData = $(this).serialize(); // جمع بيانات النموذج
+    var year = <?php echo $year; ?>; // إضافة السنة إلى البيانات
+    paymentsData += '&year=' + year;
 
     $.ajax({
         url: 'submit_payments.php', // ملف PHP الذي يعالج المدفوعات
         type: 'POST',
         data: paymentsData,
+        dataType: 'json', // تحديد نوع الاستجابة كـ JSON
         success: function(response) {
-        if (response.success) {
-            // تعطيل الحقول بعد النجاح
-            $('input[name^="payments"]').prop('disabled', true);
-            $('select[name^="payments"]').prop('disabled', true);
-        } else {
-            alert('حدث خطأ: ' + response.error);
-        }
+            if (response.success) {
+                // تعطيل الحقول فقط للمستفيدين الذين تم حفظ دفعاتهم بنجاح
+                if (response.saved_ids && response.saved_ids.length > 0) {
+                    response.saved_ids.forEach(function(beneficiaryId) {
+                        // تعطيل حقول المبلغ ونوع الدفعية للمستفيد المحدد
+                        $('input[name="payments[' + beneficiaryId + '][amount]"]').prop('disabled', true);
+                        $('select[name="payments[' + beneficiaryId + '][payment_type]"]').prop('disabled', true);
+                    });
+                }
+                
+                var message = response.message || 'تم تسجيل الدفعات بنجاح';
+                if (response.partial_errors && response.partial_errors.length > 0) {
+                    message += '\n\nأخطاء:\n' + response.partial_errors.join('\n');
+                    // إذا كانت هناك أخطاء جزئية، لا نعيد تحميل الصفحة فوراً
+                    alert(message);
+                } else {
+                    // إذا نجحت جميع الدفعات، نعرض الرسالة ونعيد التحميل بعد ثانية
+                    alert(message);
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1000);
+                }
+            } else {
+                var errorMsg = response.error || 'خطأ غير معروف';
+                if (response.errors && response.errors.length > 0) {
+                    errorMsg += '\n\n' + response.errors.join('\n');
+                }
+                alert('حدث خطأ: ' + errorMsg);
+            }
         },
         error: function(xhr, status, error) {
-            alert('حدث خطأ: ' + error);
+            console.error('Error:', xhr.responseText);
+            var errorMessage = 'حدث خطأ في الاتصال';
+            try {
+                var errorResponse = JSON.parse(xhr.responseText);
+                if (errorResponse.error) {
+                    errorMessage = errorResponse.error;
+                }
+            } catch (e) {
+                errorMessage = error;
+            }
+            alert('حدث خطأ: ' + errorMessage);
         }
     });
 });

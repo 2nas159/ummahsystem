@@ -1,227 +1,282 @@
-<!DOCTYPE html>
-<html lang="ar">
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+include("includes/csrf_helper.php");
+$BASE_PATH_PREFIX = '';
+require_once __DIR__ . '/layout.php';
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        /* General form control styles */
-        .form-control {
-            width: 100%;
-            height: 40px;
-            margin-bottom: 10px;
-            font-size: 1rem;
-            padding: 10px;
-        }
+// Display success/error messages
+$success_message = $_SESSION['success_message'] ?? '';
+$error_message = $_SESSION['error_message'] ?? '';
+unset($_SESSION['success_message'], $_SESSION['error_message']);
+?>
 
-        .input-group input {
-            margin-right: 10px;
-        }
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4">
+    <!-- Success/Error Messages -->
+    <?php if ($success_message): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i><?= htmlspecialchars($success_message) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+    
+    <?php if ($error_message): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i><?= htmlspecialchars($error_message) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
 
-        /* Style for text areas */
-        textarea.form-control {
-            height: 50PX;
-        }
-
-        /* Style for labels */
-        label {
-            font-weight: bold;
-            display: block;
-            padding: 12px;
-            color: #333;
-        }
-
-        /* Row spacing */
-        .row {
-            display: flex;
-            margin-bottom: 10px;
-        }
-
-        /* Ensures two columns with 50% width each */
-        .col-md-6 {
-            flex: 0 0 50%;
-            padding: 0 10px;
-        }
-
-        /* Style for the add button */
-        .add-btn {
-            background-color: #28a745;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            margin: 15px 0;
-            cursor: pointer;
-            display: block;
-        }
-
-        .add-btn:hover {
-            background-color: #218838;
-        }
-
-        /* Style for the submit button */
-        .btn-success {
-            width: 100%;
-            padding: 15px;
-            font-size: 1.2rem;
-            background-color: #28a745;
-            border: none;
-            border-radius: 5px;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background-color: #218838;
-        }
-
-        /* Separator line between groups */
-        #reportTable {
-            padding: 20px;
-            margin-top: 20px;
-            margin-bottom: 20px;
-            border: 1px solid black;
-        }
-
-        /* Optional styling for the file name input */
-        
-    </style>
-    <title>إنشاء تقرير جديد</title>
-</head>
-
-<body>
-    <?php include "header.php"; ?>
-
-    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4">
-        <h2 style="text-align: center;" class="mb-4">إنشاء تقرير جديد</h2>
-
-        <form action="create_report.php" method="post">
-            <div style="width: 600px; align-items: center;" class="input-group mb-3 report_name">
-                <label style="padding-bottom: 26px" for="file_name">اسم التقرير</label>
-                <input style="width: 200px;" type="text" id="file_name" name="file_name" class="form-control" required>
-            </div>
-
-            <div id="reportTable">
-                <!-- الأهداف والمهمات -->
-
-                <div class="input-group mb-3">
-                    <label for="">الهدف</label>
-                    <textarea class="form-control" name="goals[]"></textarea>
-                </div>
-
-                <div class="input-group mb-3">
-                    <label for="">المهام</label>
-                    <textarea class="form-control" name="tasks[]"></textarea>
-                </div>
-
-
-                <!-- عدد المستفيدين والإيجابيات والسلبيات -->
-
-                <div class="input-group mb-3">
-                    <label>عدد المستفيدين</label>
-                    <input class="form-control" type="number" name="number_of_individuals[]">
-                </div>
-                <div class="input-group mb-3">
-                    <label>الإيجابيات والسلبيات</label>
-                    <textarea class="form-control" name="negatives_and_obstacles[]"></textarea>
-                </div>
-
-                <!-- التقييم والمبلغ -->
-
-                <div class="input-group mb-3">
-                    <label>التقييم</label>
-                    <textarea class="form-control" name="evaluation[]"></textarea>
-                </div>
-
-                <div class="input-group mb-3">
-                    <label>المبلغ</label>
-                    <input class="form-control" type="number" step="0.01" name="amount[]">
-                </div>
-
-                <!-- نسبة التحقق والملاحظات -->
-
-                <div class="input-group mb-3">
-                    <label>نسبة التحقق</label>
-                    <input class="form-control" type="text" step="0.01" name="completion_percentage[]">
-                </div>
-
-                <div class="input-group mb-3">
-                    <label>ملاحظات واقتراحات</label>
-                    <textarea class="form-control" name="notes_and_recommendations[]"></textarea>
-                </div>
-
-            </div>
-            <div class="row">
-                <div class="col">
-                    <!-- زر إضافة المزيد من الأهداف -->
-                    <button type="button" class="add-btn" onclick="addRow()">إضافة هدف </button>
-
-                </div>
-                <div class="col">
-                    <!-- اختيار شهر التقرير -->
-                    <label for="report_month">اختر شهر التقرير</label><br>
-                    <input type="month" id="report_month" name="report_month" required><br><br>
-                </div>
-            </div>
-
-            <button class="btn btn-success" type="submit">نشر التقرير</button>
-        </form>
-
-        <script>
-            function addRow() {
-                const tableBody = document.querySelector("#reportTable");
-                let newGroup = `
-                    <div id="reportTable">
-                        <!-- الأهداف والمهمات -->
-                        <div class="input-group mb-3">
-                            <label for="">الهدف</label>
-                            <textarea class="form-control" name="goals[]"></textarea>
-                        </div>
-
-                        <div class="input-group mb-3">
-                            <label for="">المهام</label>
-                            <textarea class="form-control" name="tasks[]"></textarea>
-                        </div>
-
-
-                        <!-- عدد المستفيدين والإيجابيات والسلبيات -->
-
-                        <div class="input-group mb-3">
-                            <label>عدد المستفيدين</label>
-                            <input class="form-control" type="number" name="number_of_individuals[]">
-                        </div>
-                        <div class="input-group mb-3">
-                            <label>الإيجابيات والسلبيات</label>
-                            <textarea class="form-control" name="negatives_and_obstacles[]"></textarea>
-                        </div>
-
-                        <!-- التقييم والمبلغ -->
-
-                        <div class="input-group mb-3">
-                            <label>التقييم</label>
-                            <textarea class="form-control" name="evaluation[]"></textarea>
-                        </div>
-
-                        <div class="input-group mb-3">
-                            <label>المبلغ</label>
-                            <input class="form-control" type="number" step="0.01" name="amount[]">
-                        </div>
-
-                        <!-- نسبة التحقق والملاحظات -->
-
-                        <div class="input-group mb-3">
-                            <label>نسبة التحقق</label>
-                            <input class="form-control" type="number" step="0.01" name="completion_percentage[]">
-                        </div>
-
-                        <div class="input-group mb-3">
-                            <label>ملاحظات واقتراحات</label>
-                            <textarea class="form-control" name="notes_and_recommendations[]"></textarea>
-                        </div>
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="fas fa-file-alt me-2"></i>إنشاء تقرير جديد</h4>
+        </div>
+        <div class="card-body">
+            <form id="reportForm" method="post" action="create_report.php">
+                <!-- CSRF Token -->
+                <input type="hidden" name="csrf_token" value="<?= generateCSRFToken() ?>">
+                
+                <!-- Report Header Information -->
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">اسم التقرير <span class="text-danger">*</span></label>
+                        <input type="text" name="report_name" class="form-control form-control-lg" 
+                               placeholder="أدخل اسم التقرير" required>
                     </div>
-            `;
-                tableBody.innerHTML += newGroup;
-            }
-        </script>
-</body>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-bold">نوع التقرير</label>
+                        <select name="report_type" class="form-select form-select-lg">
+                            <option value="monthly">شهري</option>
+                            <option value="quarterly">ربع سنوي</option>
+                            <option value="annual">سنوي</option>
+                            <option value="custom">مخصص</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-bold">الشهر <span class="text-danger">*</span></label>
+                        <input type="month" name="report_month" class="form-control form-control-lg" 
+                               value="<?= date('Y-m') ?>" required>
+                    </div>
+                </div>
 
-</html>
+                <hr class="my-4">
+
+                <!-- Report Items Container -->
+                <div id="reportItemsContainer">
+                    <!-- Items will be added here dynamically -->
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex gap-2 mt-4 flex-wrap">
+                    <button type="button" class="btn btn-success" onclick="addReportItem()">
+                        <i class="fas fa-plus me-2"></i>إضافة هدف جديد
+                    </button>
+                    <button type="button" class="btn btn-info" onclick="saveDraft()">
+                        <i class="fas fa-save me-2"></i>حفظ كمسودة
+                    </button>
+                    <button type="submit" name="status" value="submitted" class="btn btn-primary">
+                        <i class="fas fa-check me-2"></i>نشر التقرير
+                    </button>
+                    <input type="hidden" name="status" id="statusInput" value="submitted">
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<style>
+.report-item {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.report-item:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: #0d6efd;
+}
+
+.report-item .card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px 8px 0 0 !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.report-item .card-body {
+    padding: 1.5rem;
+}
+
+.form-label {
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+textarea.form-control {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.btn {
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+#reportForm {
+    position: relative;
+}
+
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.loading-overlay.show {
+    display: flex;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #0d6efd;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+let itemCounter = 0;
+
+function addReportItem() {
+    const container = document.getElementById('reportItemsContainer');
+    const itemHtml = `
+        <div class="card report-item" data-item-id="${itemCounter}">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-bullseye me-2"></i>الهدف #${itemCounter + 1}</h6>
+                <button type="button" class="btn btn-sm btn-light" onclick="removeReportItem(${itemCounter})">
+                    <i class="fas fa-trash me-1"></i>حذف
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label class="form-label">الهدف <span class="text-danger">*</span></label>
+                        <textarea name="goals[]" class="form-control" rows="2" required 
+                                  placeholder="أدخل الهدف"></textarea>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">المهام</label>
+                        <textarea name="tasks[]" class="form-control" rows="2" 
+                                  placeholder="أدخل المهام المطلوبة"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">عدد المستفيدين</label>
+                        <input type="number" name="number_of_individuals[]" class="form-control" 
+                               min="0" placeholder="0">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">المبلغ (₺)</label>
+                        <input type="number" name="amount[]" class="form-control" step="0.01" 
+                               min="0" placeholder="0.00">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">نسبة الإكمال (%)</label>
+                        <input type="number" name="completion_percentage[]" class="form-control" 
+                               step="0.01" min="0" max="100" placeholder="0">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">الإيجابيات والسلبيات</label>
+                        <textarea name="negatives_and_obstacles[]" class="form-control" rows="2" 
+                                  placeholder="أدخل الإيجابيات والسلبيات"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">التقييم</label>
+                        <textarea name="evaluation[]" class="form-control" rows="2" 
+                                  placeholder="أدخل التقييم"></textarea>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">ملاحظات واقتراحات</label>
+                        <textarea name="notes_and_recommendations[]" class="form-control" rows="2" 
+                                  placeholder="أدخل الملاحظات والاقتراحات"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', itemHtml);
+    itemCounter++;
+    updateItemNumbers();
+}
+
+function removeReportItem(itemId) {
+    if (confirm('هل أنت متأكد من حذف هذا الهدف؟')) {
+        const item = document.querySelector(`[data-item-id="${itemId}"]`);
+        if (item) {
+            item.style.transition = 'all 0.3s ease';
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(-20px)';
+            setTimeout(() => {
+                item.remove();
+                updateItemNumbers();
+            }, 300);
+        }
+    }
+}
+
+function updateItemNumbers() {
+    document.querySelectorAll('.report-item').forEach((item, index) => {
+        item.querySelector('h6').innerHTML = `<i class="fas fa-bullseye me-2"></i>الهدف #${index + 1}`;
+    });
+}
+
+function saveDraft() {
+    document.getElementById('statusInput').value = 'draft';
+    document.getElementById('reportForm').submit();
+}
+
+// Form validation
+document.getElementById('reportForm').addEventListener('submit', function(e) {
+    const items = document.querySelectorAll('.report-item');
+    if (items.length === 0) {
+        e.preventDefault();
+        alert('يجب إضافة هدف واحد على الأقل');
+        return false;
+    }
+    
+    // Show loading overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'loading-overlay show';
+    overlay.innerHTML = '<div class="spinner"></div>';
+    document.body.appendChild(overlay);
+});
+
+// Initialize with one item
+document.addEventListener('DOMContentLoaded', function() {
+    addReportItem();
+});
+</script>

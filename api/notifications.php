@@ -2,7 +2,7 @@
 /**
  * Notifications API Endpoint
  * Handles notification operations
- */
+*/
 
 require_once __DIR__ . '/../secure_init.php';
 require_once __DIR__ . '/../classes/User.php';

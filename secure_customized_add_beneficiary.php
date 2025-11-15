@@ -86,7 +86,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $csrf_token = Security::generateCSRFToken();
 ?>
 
-<?php include "header.php" ?>
+<?php
+$BASE_PATH_PREFIX = '';
+require_once __DIR__ . '/layout.php';
+?>
 
 <h2>إضافة مستفيد جديد</h2>
 

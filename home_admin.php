@@ -1,5 +1,6 @@
 <?php
-include "header.php";
+$BASE_PATH_PREFIX = '';
+require_once __DIR__ . '/layout.php';
 include "db_conn.php";
 include "donators_db.php";
 include "reports_db.php";
@@ -235,9 +236,9 @@ $arabic_months = [
     <title>جمعية أمة - لوحة المعلومات</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --text-color: #fff;
-            --card-bg-color: #0f172a;
+            --bg-color: #f8fafc;
+            --text-color: #1e293b;
+            --card-bg-color: #ffffff;
             --card-hover-color: #f1f5f9;
             --muted-color: #64748b;
             --accent-color: #0ea5e9;
@@ -247,15 +248,6 @@ $arabic_months = [
             --primary-gradient: linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%);
             --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .light-theme {
-            --bg-color: #0f172a;
-            --text-color: #f8fafc;
-            --card-bg-color: #fff;
-            --card-hover-color: #334155;
-            --muted-color: #94a3b8;
-            --accent-color: #38bdf8;
         }
 
         * {
@@ -287,8 +279,7 @@ $arabic_months = [
             background: var(--card-bg-color);
             border-radius: 1rem;
             box-shadow: var(--card-shadow);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid #e2e8f0;
         }
 
         h1 {
@@ -301,24 +292,7 @@ $arabic_months = [
         }
 
         .theme-toggle {
-            background: transparent;
-            color: var(--text-color);
-            border: none;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            font-size: 1.25rem;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 3rem;
-            height: 3rem;
-        }
-
-        .theme-toggle:hover {
-            background-color: var(--card-hover-color);
-            transform: translateY(-2px);
+            display: none !important;
         }
 
         .stats-grid {
@@ -336,8 +310,7 @@ $arabic_months = [
             flex-direction: column;
             transition: var(--transition);
             box-shadow: var(--card-shadow);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            border: 1px solid #e2e8f0;
         }
 
         .stat-card:hover {
@@ -403,8 +376,7 @@ $arabic_months = [
             padding: 2rem;
             transition: var(--transition);
             box-shadow: var(--card-shadow);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            border: 1px solid #e2e8f0;
         }
 
         .dashboard-card:hover {
@@ -435,9 +407,8 @@ $arabic_months = [
             background: var(--card-bg-color);
             border-radius: 1rem;
             min-height: 400px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid #e2e8f0;
             box-shadow: var(--card-shadow);
-            backdrop-filter: blur(10px);
         }
 
         .chart {
@@ -531,8 +502,7 @@ $arabic_months = [
             opacity: 0;
             animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             box-shadow: var(--card-shadow);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            border: 1px solid #e2e8f0;
         }
 
         .stat-label {
@@ -568,8 +538,7 @@ $arabic_months = [
             align-items: center;
             transition: var(--transition);
             box-shadow: var(--card-shadow);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
+            border: 1px solid #e2e8f0;
         }
 
         .event-item:hover {

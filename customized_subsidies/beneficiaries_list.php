@@ -151,7 +151,8 @@ ob_start();
 <?php
 
 $content = ob_get_clean();
-include('header.php');
+$BASE_PATH_PREFIX = '../';
+require_once __DIR__ . '/../layout.php';
 ?>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>

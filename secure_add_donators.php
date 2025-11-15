@@ -24,35 +24,31 @@ if (isset($_POST['submit'])) {
         $error = "رمز الأمان غير صحيح. يرجى المحاولة مرة أخرى.";
     } else {
         // Sanitize and validate inputs
-        $NO = Security::sanitizeInput($_POST['NO'] ?? '');
         $ADI = Security::sanitizeInput($_POST['ADI'] ?? '');
         $TEL = Security::sanitizeInput($_POST['TEL'] ?? '');
         
         // Validate required fields
-        if (empty($NO) || empty($ADI) || empty($TEL)) {
+        if (empty($ADI) || empty($TEL)) {
             $error = "يرجى ملء جميع الحقول المطلوبة.";
         } elseif (!Security::validatePhone($TEL)) {
             $error = "رقم الهاتف غير صحيح.";
         } else {
             try {
-                // Check if donator number already exists
-                $checkSql = "SELECT COUNT(*) as count FROM donators WHERE NO = ?";
-                $checkResult = $mysqli->fetchOne($checkSql, [$NO]);
+                // Auto-generate the next donator number
+                $maxNoSql = "SELECT MAX(NO) as max_no FROM donators";
+                $maxResult = $mysqli->fetchOne($maxNoSql);
+                $NO = ($maxResult && $maxResult['max_no']) ? (int)$maxResult['max_no'] + 1 : 1;
                 
-                if ($checkResult['count'] > 0) {
-                    $error = "رقم المتبرع موجود بالفعل.";
+                // Insert new donator
+                $sql = "INSERT INTO donators (NO, ADI, TEL) VALUES (?, ?, ?)";
+                $stmt = $mysqli->prepare($sql);
+                
+                if ($stmt->execute([$NO, $ADI, $TEL])) {
+                    $success = "تم إضافة المتبرع بنجاح برقم: " . $NO;
+                    // Clear form data
+                    $_POST = [];
                 } else {
-                    // Insert new donator
-                    $sql = "INSERT INTO donators (NO, ADI, TEL) VALUES (?, ?, ?)";
-                    $stmt = $mysqli->prepare($sql);
-                    
-                    if ($stmt->execute([$NO, $ADI, $TEL])) {
-                        $success = "تم إضافة المتبرع بنجاح.";
-                        // Clear form data
-                        $_POST = [];
-                    } else {
-                        $error = "حدث خطأ أثناء إضافة المتبرع.";
-                    }
+                    $error = "حدث خطأ أثناء إضافة المتبرع.";
                 }
             } catch (Exception $e) {
                 error_log("Add donator error: " . $e->getMessage());
@@ -66,7 +62,10 @@ if (isset($_POST['submit'])) {
 $csrf_token = Security::generateCSRFToken();
 ?>
 
-<?php include "header.php" ?>
+<?php
+$BASE_PATH_PREFIX = '';
+require_once __DIR__ . '/layout.php';
+?>
 
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
    <div class="container mt-5">
@@ -91,19 +90,13 @@ $csrf_token = Security::generateCSRFToken();
             <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
             
             <div class="mb-3">
-               <label class="form-label">رقم المتبرع</label>
-               <input type="number" class="form-control" name="NO" placeholder="رقم المتبرع" 
-                      value="<?php echo htmlspecialchars($_POST['NO'] ?? ''); ?>" required>
-            </div>
-
-            <div class="mb-3">
-               <label class="form-label">الاسم</label>
+               <label class="form-label">الاسم <span class="text-danger">*</span></label>
                <input type="text" class="form-control" name="ADI" placeholder="اسم المتبرع" 
                       value="<?php echo htmlspecialchars($_POST['ADI'] ?? ''); ?>" required>
             </div>
 
             <div class="mb-3">
-               <label class="form-label">رقم الهاتف</label>
+               <label class="form-label">رقم الهاتف <span class="text-danger">*</span></label>
                <input type="tel" class="form-control" name="TEL" placeholder="رقم هاتف المتبرع" 
                       value="<?php echo htmlspecialchars($_POST['TEL'] ?? ''); ?>" required>
             </div>

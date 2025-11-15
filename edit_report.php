@@ -1,270 +1,341 @@
 <?php
-include "reports_db.php";
+session_start();
+include("reports_db.php");
+include("includes/csrf_helper.php");
 
-if (isset($_GET['file_name'])) {
-    $file_name = urldecode($_GET['file_name']);
-
-    // Fetch report details from the database based on file name
-    $stmt = $pdo->prepare("SELECT * FROM operation_plan_report WHERE file_name = :file_name");
-    $stmt->execute([':file_name' => $file_name]);
-    $report_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    if (!$report_data) {
-        die('Report not found.');
-    }
-} else {
-    die('No report specified.');
+// Check authentication
+if (!isset($_SESSION["username"])) {
+    header("Location: index.php");
+    exit;
 }
 
-// If the form is submitted, update the report
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $goals = $_POST['goals'];
-    $tasks = $_POST['tasks'];
-    $number_of_individuals = $_POST['number_of_individuals'];
-    $negatives_and_obstacles = $_POST['negatives_and_obstacles'];
-    $evaluation = $_POST['evaluation'];
-    $amount = $_POST['amount'];
-    $completion_percentage = $_POST['completion_percentage'];
-    $notes_and_recommendations = $_POST['notes_and_recommendations'];
+// Get report ID
+$report_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
-    // Delete existing entries for this report before re-inserting
-    $stmt = $pdo->prepare("DELETE FROM operation_plan_report WHERE file_name = :file_name");
-    $stmt->execute([':file_name' => $file_name]);
-
-    // Re-insert updated entries
-    $sql = "INSERT INTO operation_plan_report 
-            (file_name, goals, tasks, number_of_individuals, negatives_and_obstacles, evaluation, amount, completion_percentage, notes_and_recommendations, report_month) 
-            VALUES 
-            (:file_name, :goals, :tasks, :number_of_individuals, :negatives_and_obstacles, :evaluation, :amount, :completion_percentage, :notes_and_recommendations, :report_month)";
-
-    $stmt = $pdo->prepare($sql);
-    for ($i = 0; $i < count($goals); $i++) {
-        $stmt->execute([
-            ':file_name' => $file_name,
-            ':goals' => $goals[$i],
-            ':tasks' => $tasks[$i],
-            ':number_of_individuals' => $number_of_individuals[$i],
-            ':negatives_and_obstacles' => $negatives_and_obstacles[$i],
-            ':evaluation' => $evaluation[$i],
-            ':amount' => $amount[$i],
-            ':completion_percentage' => $completion_percentage[$i],
-            ':notes_and_recommendations' => $notes_and_recommendations[$i],
-            ':report_month' => $report_data[0]['report_month'] // Keep original report month
-        ]);
-    }
-
+if ($report_id <= 0) {
+    $_SESSION['error_message'] = 'معرف التقرير غير صحيح';
     header('Location: view_reports.php');
+    exit;
 }
+
+// Fetch report data
+$stmt = $pdo->prepare("SELECT * FROM reports WHERE id = :id");
+$stmt->execute([':id' => $report_id]);
+$report = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$report) {
+    $_SESSION['error_message'] = 'التقرير غير موجود';
+    header('Location: view_reports.php');
+    exit;
+}
+
+// Fetch report items
+$stmt = $pdo->prepare("SELECT * FROM report_items WHERE report_id = :id ORDER BY item_order ASC");
+$stmt->execute([':id' => $report_id]);
+$report_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Verify CSRF token
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        $_SESSION['error_message'] = 'خطأ أمني: رمز التحقق غير صحيح';
+        header("Location: edit_report.php?id=$report_id");
+        exit;
+    }
+    
+    try {
+        $pdo->beginTransaction();
+        
+        // Update report metadata
+        $report_name = trim($_POST['report_name'] ?? '');
+        $report_month = $_POST['report_month'] ?? '';
+        $report_type = $_POST['report_type'] ?? 'monthly';
+        $status = $_POST['status'] ?? 'draft';
+        
+        if (empty($report_name) || empty($report_month)) {
+            throw new Exception('اسم التقرير والشهر مطلوبان');
+        }
+        
+        $stmt = $pdo->prepare("
+            UPDATE reports 
+            SET report_name = :report_name, 
+                report_month = :report_month, 
+                report_type = :report_type,
+                status = :status
+            WHERE id = :id
+        ");
+        $stmt->execute([
+            ':report_name' => $report_name,
+            ':report_month' => $report_month . '-01',
+            ':report_type' => $report_type,
+            ':status' => $status,
+            ':id' => $report_id
+        ]);
+        
+        // Delete existing items
+        $stmt = $pdo->prepare("DELETE FROM report_items WHERE report_id = :id");
+        $stmt->execute([':id' => $report_id]);
+        
+        // Insert updated items
+        $goals = $_POST['goals'] ?? [];
+        $stmt = $pdo->prepare("
+            INSERT INTO report_items 
+            (report_id, goal, tasks, number_of_individuals, negatives_and_obstacles, 
+             evaluation, amount, completion_percentage, notes_and_recommendations, item_order) 
+            VALUES (:report_id, :goal, :tasks, :number_of_individuals, :negatives_and_obstacles, 
+                    :evaluation, :amount, :completion_percentage, :notes_and_recommendations, :item_order)
+        ");
+        
+        $item_count = 0;
+        foreach ($goals as $index => $goal) {
+            $goal = trim($goal);
+            if (empty($goal)) continue;
+            
+            $stmt->execute([
+                ':report_id' => $report_id,
+                ':goal' => $goal,
+                ':tasks' => trim($_POST['tasks'][$index] ?? ''),
+                ':number_of_individuals' => (int)($_POST['number_of_individuals'][$index] ?? 0),
+                ':negatives_and_obstacles' => trim($_POST['negatives_and_obstacles'][$index] ?? ''),
+                ':evaluation' => trim($_POST['evaluation'][$index] ?? ''),
+                ':amount' => (float)($_POST['amount'][$index] ?? 0),
+                ':completion_percentage' => min(100, max(0, (float)($_POST['completion_percentage'][$index] ?? 0))),
+                ':notes_and_recommendations' => trim($_POST['notes_and_recommendations'][$index] ?? ''),
+                ':item_order' => $item_count++
+            ]);
+        }
+        
+        if ($item_count === 0) {
+            throw new Exception('يجب إضافة هدف واحد على الأقل');
+        }
+        
+        $pdo->commit();
+        $_SESSION['success_message'] = 'تم تحديث التقرير بنجاح';
+        header('Location: view_reports.php');
+        exit;
+        
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        $_SESSION['error_message'] = 'خطأ: ' . $e->getMessage();
+        header("Location: edit_report.php?id=$report_id");
+        exit;
+    }
+}
+
+$BASE_PATH_PREFIX = '';
+require_once __DIR__ . '/layout.php';
 ?>
 
-<?php include "header.php" ?>
-
-<style>
-    /* General form control styles */
-    .form-control {
-        width: 100%;
-        height: 40px;
-        margin-bottom: 10px;
-        font-size: 1rem;
-        padding: 10px;
-    }
-
-    .input-group input {
-        margin-right: 10px;
-    }
-
-    /* Style for text areas */
-    textarea.form-control {
-        height: 50PX;
-    }
-
-    /* Style for labels */
-    label {
-        font-weight: bold;
-        display: block;
-        padding: 12px;
-        color: #333;
-    }
-
-    /* Row spacing */
-    .row {
-        display: flex;
-        margin-bottom: 10px;
-    }
-
-    /* Ensures two columns with 50% width each */
-    .col-md-6 {
-        flex: 0 0 50%;
-        padding: 0 10px;
-    }
-
-
-    /* Style for the submit button */
-    .btn-success {
-        width: 100%;
-        padding: 15px;
-        font-size: 1.2rem;
-        background-color: #28a745;
-        border: none;
-        border-radius: 5px;
-        color: white;
-    }
-
-    .btn-success:hover {
-        background-color: #218838;
-    }
-
-    /* Separator line between groups */
-    #reportTable {
-        padding: 20px;
-        margin-top: 20px;
-        margin-bottom: 20px;
-        border: 1px solid black;
-    }
-
-    /* Style for the add button */
-    .add-btn {
-        background-color: #28a745;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        margin: 15px 0;
-        cursor: pointer;
-        display: block;
-    }
-
-    .add-btn:hover {
-        background-color: #218838;
-    }
-</style>
-
-<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-
-    <h2 style="text-align: center;" class="mt-4 mb-4">تعديل التقرير: <?= htmlspecialchars($file_name) ?></h2>
-
-    <form method="POST">
-        <!-- Loop through each report -->
-        <?php foreach ($report_data as $row): ?>
-            <!-- Group wrapper start -->
-            <div id="reportTable">
-                <!-- الأهداف والمهمات -->
-
-                <div class="input-group mb-3">
-                    <label for="">الهدف</label>
-                    <textarea class="form-control" name="goals[]"><?= htmlspecialchars($row['goals']) ?></textarea>
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 mt-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-warning text-dark">
+            <h4 class="mb-0"><i class="fas fa-edit me-2"></i>تعديل التقرير: <?= htmlspecialchars($report['report_name']) ?></h4>
+        </div>
+        <div class="card-body">
+            <form id="reportForm" method="post">
+                <input type="hidden" name="csrf_token" value="<?= generateCSRFToken() ?>">
+                
+                <!-- Report Header -->
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">اسم التقرير <span class="text-danger">*</span></label>
+                        <input type="text" name="report_name" class="form-control form-control-lg" 
+                               value="<?= htmlspecialchars($report['report_name']) ?>" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-bold">نوع التقرير</label>
+                        <select name="report_type" class="form-select form-select-lg">
+                            <option value="monthly" <?= $report['report_type'] === 'monthly' ? 'selected' : '' ?>>شهري</option>
+                            <option value="quarterly" <?= $report['report_type'] === 'quarterly' ? 'selected' : '' ?>>ربع سنوي</option>
+                            <option value="annual" <?= $report['report_type'] === 'annual' ? 'selected' : '' ?>>سنوي</option>
+                            <option value="custom" <?= $report['report_type'] === 'custom' ? 'selected' : '' ?>>مخصص</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label fw-bold">الشهر <span class="text-danger">*</span></label>
+                        <input type="month" name="report_month" class="form-control form-control-lg" 
+                               value="<?= date('Y-m', strtotime($report['report_month'])) ?>" required>
+                    </div>
                 </div>
 
-                <div class="input-group mb-3">
-                    <label for="">المهام</label>
-                    <textarea class="form-control" name="tasks[]"><?= htmlspecialchars($row['tasks']) ?></textarea>
+                <hr class="my-4">
+
+                <!-- Report Items -->
+                <div id="reportItemsContainer">
+                    <?php foreach ($report_items as $index => $item): ?>
+                        <div class="card report-item mb-3" data-item-id="<?= $index ?>">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-bullseye me-2"></i>الهدف #<?= $index + 1 ?></h6>
+                                <button type="button" class="btn btn-sm btn-light" onclick="removeReportItem(<?= $index ?>)">
+                                    <i class="fas fa-trash me-1"></i>حذف
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-12">
+                                        <label class="form-label">الهدف <span class="text-danger">*</span></label>
+                                        <textarea name="goals[]" class="form-control" rows="2" required><?= htmlspecialchars($item['goal']) ?></textarea>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="form-label">المهام</label>
+                                        <textarea name="tasks[]" class="form-control" rows="2"><?= htmlspecialchars($item['tasks']) ?></textarea>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">عدد المستفيدين</label>
+                                        <input type="number" name="number_of_individuals[]" class="form-control" 
+                                               value="<?= $item['number_of_individuals'] ?>" min="0">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">المبلغ (₺)</label>
+                                        <input type="number" name="amount[]" class="form-control" step="0.01" 
+                                               value="<?= $item['amount'] ?>" min="0">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">نسبة الإكمال (%)</label>
+                                        <input type="number" name="completion_percentage[]" class="form-control" 
+                                               value="<?= $item['completion_percentage'] ?>" step="0.01" min="0" max="100">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">الإيجابيات والسلبيات</label>
+                                        <textarea name="negatives_and_obstacles[]" class="form-control" rows="2"><?= htmlspecialchars($item['negatives_and_obstacles']) ?></textarea>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">التقييم</label>
+                                        <textarea name="evaluation[]" class="form-control" rows="2"><?= htmlspecialchars($item['evaluation']) ?></textarea>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="form-label">ملاحظات واقتراحات</label>
+                                        <textarea name="notes_and_recommendations[]" class="form-control" rows="2"><?= htmlspecialchars($item['notes_and_recommendations']) ?></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
 
-
-                <!-- عدد المستفيدين والإيجابيات والسلبيات -->
-
-                <div class="input-group mb-3">
-                    <label>عدد المستفيدين</label>
-                    <input class="form-control" type="number" name="number_of_individuals[]"
-                        value="<?= htmlspecialchars($row['number_of_individuals']) ?>">
+                <!-- Action Buttons -->
+                <div class="d-flex gap-2 mt-4">
+                    <button type="button" class="btn btn-success" onclick="addReportItem()">
+                        <i class="fas fa-plus me-2"></i>إضافة هدف جديد
+                    </button>
+                    <button type="button" class="btn btn-info" onclick="saveDraft()">
+                        <i class="fas fa-save me-2"></i>حفظ كمسودة
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check me-2"></i>تحديث التقرير
+                    </button>
+                    <input type="hidden" name="status" id="statusInput" value="<?= $report['status'] ?>">
                 </div>
-                <div class="input-group mb-3">
-                    <label>الإيجابيات والسلبيات</label>
-                    <textarea class="form-control"
-                        name="negatives_and_obstacles[]"><?= htmlspecialchars($row['negatives_and_obstacles']) ?></textarea>
-                </div>
-
-                <!-- التقييم والمبلغ -->
-
-                <div class="input-group mb-3">
-                    <label>التقييم</label>
-                    <textarea class="form-control"
-                        name="evaluation[]"><?= htmlspecialchars($row['evaluation']) ?></textarea>
-                </div>
-
-                <div class="input-group mb-3">
-                    <label>المبلغ</label>
-                    <input class="form-control" type="number" step="0.01" name="amount[]"
-                        value="<?= htmlspecialchars($row['amount']) ?>">
-                </div>
-
-                <!-- نسبة التحقق والملاحظات -->
-
-                <div class="input-group mb-3">
-                    <label>نسبة التحقق</label>
-                    <input class="form-control" type="number" step="0.01" name="completion_percentage[]"
-                        value="<?= htmlspecialchars($row['completion_percentage']) ?>">
-                </div>
-
-                <div class="input-group mb-3">
-                    <label>ملاحظات واقتراحات</label>
-                    <textarea class="form-control"
-                        name="notes_and_recommendations[]"><?= htmlspecialchars($row['notes_and_recommendations']) ?></textarea>
-                </div>
-            </div>
-            <!-- Group wrapper end -->
-            <?php endforeach; ?>
-            <!-- زر إضافة المزيد من الأهداف -->
-            <button type="button" class="add-btn" onclick="addRow()">إضافة هدف </button>
-
-
-        <button class="btn btn-success" type="submit">تحديث التقرير</button>
-    </form>
+            </form>
+        </div>
+    </div>
 </main>
 
+<style>
+.report-item {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.report-item:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-color: #0d6efd;
+}
+
+.report-item .card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px 8px 0 0 !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+</style>
+
 <script>
-    function addRow() {
-        // Locate the last reportTable container
-        const lastReportTable = document.querySelectorAll("#reportTable");
-        const lastTable = lastReportTable[lastReportTable.length - 1];
-        
-        // New group to be added
-        let newGroup = `
-        <div id="reportTable">
-            <div class="input-group mb-3">
-                <label for="">الهدف</label>
-                <textarea class="form-control" name="goals[]"></textarea>
-            </div>
+let itemCounter = <?= count($report_items) ?>;
 
-            <div class="input-group mb-3">
-                <label for="">المهام</label>
-                <textarea class="form-control" name="tasks[]"></textarea>
+function addReportItem() {
+    const container = document.getElementById('reportItemsContainer');
+    const itemHtml = `
+        <div class="card report-item mb-3" data-item-id="${itemCounter}">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-bullseye me-2"></i>الهدف #${itemCounter + 1}</h6>
+                <button type="button" class="btn btn-sm btn-light" onclick="removeReportItem(${itemCounter})">
+                    <i class="fas fa-trash me-1"></i>حذف
+                </button>
             </div>
-
-            <div class="input-group mb-3">
-                <label>عدد المستفيدين</label>
-                <input class="form-control" type="number" name="number_of_individuals[]">
-            </div>
-
-            <div class="input-group mb-3">
-                <label>الإيجابيات والسلبيات</label>
-                <textarea class="form-control" name="negatives_and_obstacles[]"></textarea>
-            </div>
-
-            <div class="input-group mb-3">
-                <label>التقييم</label>
-                <textarea class="form-control" name="evaluation[]"></textarea>
-            </div>
-
-            <div class="input-group mb-3">
-                <label>المبلغ</label>
-                <input class="form-control" type="number" step="0.01" name="amount[]">
-            </div>
-
-            <div class="input-group mb-3">
-                <label>نسبة التحقق</label>
-                <input class="form-control" type="number" step="0.01" name="completion_percentage[]">
-            </div>
-
-            <div class="input-group mb-3">
-                <label>ملاحظات واقتراحات</label>
-                <textarea class="form-control" name="notes_and_recommendations[]"></textarea>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label class="form-label">الهدف <span class="text-danger">*</span></label>
+                        <textarea name="goals[]" class="form-control" rows="2" required></textarea>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">المهام</label>
+                        <textarea name="tasks[]" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">عدد المستفيدين</label>
+                        <input type="number" name="number_of_individuals[]" class="form-control" min="0">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">المبلغ (₺)</label>
+                        <input type="number" name="amount[]" class="form-control" step="0.01" min="0">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">نسبة الإكمال (%)</label>
+                        <input type="number" name="completion_percentage[]" class="form-control" step="0.01" min="0" max="100">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">الإيجابيات والسلبيات</label>
+                        <textarea name="negatives_and_obstacles[]" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">التقييم</label>
+                        <textarea name="evaluation[]" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">ملاحظات واقتراحات</label>
+                        <textarea name="notes_and_recommendations[]" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
             </div>
         </div>
-        `;
+    `;
+    container.insertAdjacentHTML('beforeend', itemHtml);
+    itemCounter++;
+    updateItemNumbers();
+}
 
-        // Insert the new row after the last table
-        lastTable.insertAdjacentHTML('afterend', newGroup);
+function removeReportItem(itemId) {
+    if (confirm('هل أنت متأكد من حذف هذا الهدف؟')) {
+        const item = document.querySelector(`[data-item-id="${itemId}"]`);
+        if (item) {
+            item.remove();
+            updateItemNumbers();
+        }
     }
-</script>
+}
 
+function updateItemNumbers() {
+    document.querySelectorAll('.report-item').forEach((item, index) => {
+        item.querySelector('h6').innerHTML = `<i class="fas fa-bullseye me-2"></i>الهدف #${index + 1}`;
+    });
+}
+
+function saveDraft() {
+    document.getElementById('statusInput').value = 'draft';
+    document.getElementById('reportForm').submit();
+}
+
+document.getElementById('reportForm').addEventListener('submit', function(e) {
+    const items = document.querySelectorAll('.report-item');
+    if (items.length === 0) {
+        e.preventDefault();
+        alert('يجب إضافة هدف واحد على الأقل');
+        return false;
+    }
+});
+</script>

@@ -5,7 +5,7 @@ $year = filter_input(INPUT_GET, 'year', FILTER_VALIDATE_INT) ?: date('Y');
 $month = filter_input(INPUT_GET, 'month', FILTER_VALIDATE_INT) ?: date('n');
 
 // جلب بيانات المستفيدين الخاصة بالشهر والسنة المحددة
-$query_beneficiaries = "SELECT b.*, p.amount, p.payment_type 
+$query_beneficiaries = "SELECT b.*, p.id as payment_id, p.amount, p.payment_type 
                        FROM beneficiaries b 
                        LEFT JOIN payments p ON b.id = p.beneficiary_id 
                        AND YEAR(p.payment_date) = ? 
@@ -161,22 +161,39 @@ ob_start();
                                     }
                                     echo "</td>";
 
+                                    $paymentLabels = [
+                                        'cash' => 'نقدي',
+                                        'bank' => 'تحويل بنكي',
+                                        'in-kind' => 'تحويل عيني'
+                                    ];
                                     echo "<td id='payment_info_" . $row['id'] . "'>";
                                     if (!empty($row['amount'])) {
+                                        $paymentLabel = $paymentLabels[$row['payment_type']] ?? htmlspecialchars($row['payment_type']);
+                                        echo "<div style='display: flex; align-items: center; gap: 8px;'>";
                                         echo "<span class='payment-status paid'>
                                                 <i class='fas fa-check-circle'></i>
                                                 تم الدفع: " . htmlspecialchars($row['amount']) . " 
-                                                (" . htmlspecialchars($row['payment_type']) . ")
+                                                (" . $paymentLabel . ")
                                             </span>";
+                                        if (!empty($row['payment_id'])) {
+                                            echo "<button type='button' class='btn btn-danger btn-sm' 
+                                                    onclick='deletePayment(" . $row['payment_id'] . ", " . $row['id'] . ")' 
+                                                    title='حذف الدفعة'>
+                                                    <i class='fas fa-trash'></i>
+                                                </button>";
+                                        }
+                                        echo "</div>";
                                     } else {
                                         echo "<form id='payment_form_" . $row['id'] . "' class='payment-form'>
                                                 <input type='hidden' name='beneficiary_id' value='" . $row['id'] . "'>
+                                                <input type='hidden' name='year' value='" . $year . "'>
+                                                <input type='hidden' name='month' value='" . $month . "'>
                                                 <div class='payment-inputs'>
                                                     <input type='number' name='amount' class='form-control' placeholder='المبلغ' required>
                                                     <select name='payment_type' class='form-control' required>
                                                         <option value='cash'>نقدي</option>
                                                         <option value='bank'>تحويل بنكي</option>
-                                                        <option value='not_physical'>تحويل عيني</option>
+                                                        <option value='in-kind'>تحويل عيني</option>
                                                     </select>
                                                     <button type='button' class='btn-action btn-pay' onclick='submitPayment(" . $row['id'] . ")'>
                                                         <i class='fas fa-check'></i> تأكيد الدفع
@@ -329,7 +346,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 $content = ob_get_clean();
-include('header.php');
+$BASE_PATH_PREFIX = '../';
+require_once __DIR__ . '/../layout.php';
 ?>
 
 <!-- تضمين المكتبات المطلوبة -->
@@ -492,6 +510,53 @@ include('header.php');
                 },
                 error: function () {
                     alert("حدث خطأ أثناء الاتصال بالخادم.");
+                }
+            });
+        }
+    }
+
+    function deletePayment(paymentId, beneficiaryId) {
+        if(confirm('هل أنت متأكد من حذف هذه الدفعة؟ سيتم حذف المبلغ ونوع الدفع فقط، ولن يتم حذف بيانات المستفيد.')) {
+            $.ajax({
+                url: 'delete_payment.php',
+                type: 'POST',
+                data: { 
+                    payment_id: paymentId,
+                    beneficiary_id: beneficiaryId,
+                    year: <?php echo $year; ?>,
+                    month: <?php echo $month; ?>
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if(response.success) {
+                        // إعادة عرض نموذج الدفع
+                        const paymentInfo = $('#payment_info_' + beneficiaryId);
+                        paymentInfo.html(`
+                            <form id='payment_form_${beneficiaryId}' class='payment-form'>
+                                <input type='hidden' name='beneficiary_id' value='${beneficiaryId}'>
+                                <input type='hidden' name='year' value='<?php echo $year; ?>'>
+                                <input type='hidden' name='month' value='<?php echo $month; ?>'>
+                                <div class='payment-inputs'>
+                                    <input type='number' name='amount' class='form-control' placeholder='المبلغ' required>
+                                    <select name='payment_type' class='form-control' required>
+                                        <option value='cash'>نقدي</option>
+                                        <option value='bank'>تحويل بنكي</option>
+                                        <option value='in-kind'>تحويل عيني</option>
+                                    </select>
+                                    <button type='button' class='btn-action btn-pay' onclick='submitPayment(${beneficiaryId})'>
+                                        <i class='fas fa-check'></i> تأكيد الدفع
+                                    </button>
+                                </div>
+                            </form>
+                        `);
+                        alert('تم حذف الدفعة بنجاح');
+                    } else {
+                        alert(response.message || 'حدث خطأ أثناء حذف الدفعة');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                    alert('حدث خطأ في الاتصال بالخادم');
                 }
             });
         }

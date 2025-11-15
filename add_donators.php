@@ -25,7 +25,10 @@ if (isset($_POST['submit'])) {
 }
 ?>
 
-<?php include "header.php" ?>
+<?php
+$BASE_PATH_PREFIX = '';
+require_once __DIR__ . '/layout.php';
+?>
 
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
    <div class="container mt-5">

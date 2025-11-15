@@ -1,5 +1,6 @@
 <?php
-include "header.php";
+$BASE_PATH_PREFIX = '';
+require_once __DIR__ . '/layout.php';
 include "db_conn.php";
 include "donators_db.php";
 include "reports_db.php";
@@ -215,14 +216,14 @@ include "customized_subsidies/db_connection.php";
     }
 </style>
 
-<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" data-bs-theme="dark">
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
     <div class="container">
-        <header data-bs-theme="dark">
+        <header>
             <h1>جمعية أمة</h1>
             <button class="donate-btn"><a href="add_donators.php">سجل تبرع</a></button>
         </header>
 
-        <div class="stats-grid" data-bs-theme="dark">
+        <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-card-header">
                     <span class="stat-card-title">إجمالي التبرعات</span>

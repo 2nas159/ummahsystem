@@ -15,7 +15,7 @@
     /* Surfaces */
     --surface: #FFFFFF;
     --content-bg: var(--neutral-25);
-    --app-chrome: #0B0F14;
+    --app-chrome: #FFFFFF;
 
     /* Borders & Shadows */
     --border: var(--neutral-100);
@@ -82,7 +82,7 @@ body {
     position: fixed;
     inset-inline-start: 24px; /* RTL friendly */
     bottom: 24px;
-    background: var(--neutral-900);
+    background: var(--neutral-700);
     color: #fff;
     padding: 10px 14px;
     border-radius: var(--radius-md);
@@ -161,33 +161,24 @@ a:focus, button:focus, .form-control:focus, .btn:focus {
   --bs-link-hover-color: var(--brand-primary-700);
 }
 
-/* Dark theme overrides (Bootstrap 5.3 data attribute) */
-[data-bs-theme="dark"] {
-  --bs-body-bg: var(--neutral-900);
-  --bs-body-color: var(--neutral-100);
-  --bs-border-color: var(--neutral-800);
-  --bs-link-color: var(--brand-accent);
-  --bs-link-hover-color: var(--brand-primary);
-}
-
-/* Sidebar theming centralized */
+/* Sidebar theming - Light theme only */
 .sidebar {
-  background-color: var(--neutral-800) !important;
-  border-color: var(--neutral-700) !important;
+  background-color: #ffffff !important;
+  border-color: var(--neutral-200) !important;
 }
 .sidebar .bg-body-tertiary,
 .sidebar.bg-body-tertiary,
 .sidebar .offcanvas,
 .sidebar .offcanvas-md,
 .sidebar .offcanvas-end {
-  background-color: var(--neutral-800) !important;
-  border-color: var(--neutral-700) !important;
+  background-color: #ffffff !important;
+  border-color: var(--neutral-200) !important;
 }
-.sidebar .nav-link { color: var(--neutral-50) !important; }
-.sidebar .nav-link:hover { background: var(--neutral-700); }
+.sidebar .nav-link { color: var(--neutral-700) !important; }
+.sidebar .nav-link:hover { background: var(--neutral-100); }
 .sidebar .nav-link.active { background: var(--brand-primary); color: #fff !important; }
-.sidebar .text-body-secondary, .sidebar .sidebar-heading { color: var(--neutral-400) !important; }
-.sidebar hr { border-color: var(--neutral-700); }
+.sidebar .text-body-secondary, .sidebar .sidebar-heading { color: var(--neutral-600) !important; }
+.sidebar hr { border-color: var(--neutral-200); }
 
 /* Cards */
 .card { border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }

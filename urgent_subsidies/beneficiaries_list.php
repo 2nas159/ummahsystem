@@ -122,5 +122,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 $content = ob_get_clean();
-include('header.php');
+$BASE_PATH_PREFIX = '../';
+require_once __DIR__ . '/../layout.php';
 ?>

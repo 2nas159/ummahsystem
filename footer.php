@@ -36,7 +36,7 @@
             </div>
         </div>
         <!-- Copyright -->
-        <div class="text-center p-3 bg-dark text-white">
+        <div class="text-center p-3 bg-light text-dark border-top">
             © 2024 جميع الحقوق محفوظة لجمعية أمة
         </div>
     </footer>

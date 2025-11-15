@@ -28,19 +28,27 @@ if (isset($_POST['query']) && isset($_POST['year']) && isset($_POST['month'])) {
             $payment_info = "";
             if ($payment_result->num_rows > 0) {
                 $payment_row = $payment_result->fetch_assoc();
+                $paymentLabels = [
+                    'cash' => 'نقدي',
+                    'bank' => 'تحويل بنكي',
+                    'in-kind' => 'تحويل عيني'
+                ];
+                $paymentTypeLabel = $paymentLabels[$payment_row['payment_type']] ?? htmlspecialchars($payment_row['payment_type']);
                 $payment_info = "المبلغ المدفوع: " . number_format($payment_row['amount'], 2) . "<br>" .
-                                "طريقة الدفع: " . htmlspecialchars($payment_row['payment_type']);
+                                "طريقة الدفع: " . $paymentTypeLabel;
             } else {
                 // إذا لم يكن هناك مدفوعات، عرض نموذج الدفع
                 $payment_info = "
                     <form id='payment_form_{$row['id']}' class='payment-form'>
                         <input type='hidden' name='beneficiary_id' value='{$row['id']}'>
+                        <input type='hidden' name='year' value='{$year}'>
+                        <input type='hidden' name='month' value='{$month}'>
                         <input type='number' name='amount' class='form-control mb-2' placeholder='المبلغ' required>
                         <select name='payment_type' class='form-control mb-2' required>
                             <option value=''>اختر نوع الدفعية</option>
-                            <option value='تحويل بنكي'>تحويل بنكي</option>
-                            <option value='تحويل عيني'>تحويل عيني</option>
-                            <option value='نقدي'>نقدي</option>
+                            <option value='cash'>نقدي</option>
+                            <option value='bank'>تحويل بنكي</option>
+                            <option value='in-kind'>تحويل عيني</option>
                         </select>
                         <button type='button' class='btn btn-primary' onclick='submitPayment({$row['id']})'>تسجيل الدفعية</button>
                     </form>

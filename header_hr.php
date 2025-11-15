@@ -10,7 +10,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 
 <!doctype html>
-<html lang="ar" dir="rtl" data-bs-theme="auto">
+<html lang="ar" dir="rtl" data-bs-theme="light">
 
 <head>
 
@@ -38,8 +38,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
 <body>
 
 
-    <header style="margin-bottom: 0;" class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow" data-bs-theme="dark">
-        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white" href="#">جمعية أمة الخيرية</a>
+    <header style="margin-bottom: 0;" class="navbar sticky-top bg-light flex-md-nowrap p-0 shadow">
+        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-dark" href="#">جمعية أمة الخيرية</a>
         <span style="margin-left: 10px;" class="greeting mt-2 mb-2"> مرحبا <?php echo "بمدير الاتش ار دكتور اسامة"; ?></span>
     </header>
 

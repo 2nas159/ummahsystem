@@ -169,7 +169,8 @@ ob_start();
 
 <?php
 $content = ob_get_clean();
-include('header.php');
+$BASE_PATH_PREFIX = '../';
+require_once __DIR__ . '/../layout.php';
 ?>
 
 <!-- إضافة قالب لنتائج البحث -->
@@ -194,19 +195,20 @@ include('header.php');
 
 <style>
     :root {
-        --dark-bg: #1a1f2d;
+        --light-bg: #f8fafc;
         --primary-blue: #0061f2;
-        --text-white: #ffffff;
+        --text-dark: #1e293b;
+        --text-muted: #64748b;
         --border-radius: 12px;
         --box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     }
 
     .container-fluid {
-        background: var(--dark-bg);
+        background: var(--light-bg);
     }
 
     .dashboard {
-        background: var(--dark-bg);
+        background: var(--light-bg);
         padding: 20px;
     }
 
@@ -219,7 +221,7 @@ include('header.php');
     }
 
     .header-title h1 {
-        color: var(--text-white);
+        color: var(--text-dark);
         font-size: 32px;
         font-weight: 700;
         text-align: right;
@@ -233,12 +235,12 @@ include('header.php');
     }
 
     .stat-box {
-        background: rgba(255, 255, 255, 0.05);
+        background: #ffffff;
         border-radius: var(--border-radius);
         padding: 16px 24px;
         min-width: 200px;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: var(--box-shadow);
+        border: 1px solid #e2e8f0;
     }
 
     .stat-content {
@@ -246,7 +248,7 @@ include('header.php');
     }
 
     .stat-value .number {
-        color: var(--text-white);
+        color: var(--text-dark);
         font-size: 24px;
         font-weight: 700;
         display: block;
@@ -254,21 +256,21 @@ include('header.php');
     }
 
     .stat-value .label {
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--text-muted);
         font-size: 14px;
     }
 
     /* شريط البحث */
     .controls-bar {
-        background: rgba(255, 255, 255, 0.05);
+        background: #ffffff;
         border-radius: var(--border-radius);
         padding: 16px 24px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 32px;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: var(--box-shadow);
+        border: 1px solid #e2e8f0;
     }
 
     .search-container {
@@ -286,22 +288,23 @@ include('header.php');
         width: 100%;
         padding: 12px 20px;
         padding-left: 40px;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
         border-radius: var(--border-radius);
-        color: var(--text-white);
+        color: var(--text-dark);
         font-size: 14px;
         transition: all 0.3s ease;
     }
 
     .search-box input::placeholder {
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--text-muted);
     }
 
     .search-box input:focus {
-        background: rgba(255, 255, 255, 0.15);
+        background: #ffffff;
         border-color: var(--primary-blue);
         outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 97, 242, 0.1);
     }
 
     .search-btn {
@@ -311,7 +314,7 @@ include('header.php');
         transform: translateY(-50%);
         background: none;
         border: none;
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--text-muted);
         cursor: pointer;
     }
 
@@ -320,10 +323,10 @@ include('header.php');
         top: 100%;
         left: 0;
         right: 0;
-        background: #2a3142;
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
         border-radius: var(--border-radius);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
         margin-top: 8px;
         max-height: 400px;
         overflow-y: auto;
@@ -333,13 +336,13 @@ include('header.php');
 
     .search-result-item {
         padding: 16px 20px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid #e2e8f0;
         cursor: pointer;
         transition: all 0.2s ease;
     }
 
     .search-result-item:hover {
-        background: #323a4e;
+        background: #f1f5f9;
     }
 
     .result-header {
@@ -352,7 +355,7 @@ include('header.php');
     .beneficiary-name {
         font-size: 16px;
         font-weight: 600;
-        color: #ffffff;
+        color: var(--text-dark);
     }
 
     .beneficiary-id {
@@ -375,9 +378,9 @@ include('header.php');
         display: flex;
         align-items: center;
         gap: 8px;
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--text-muted);
         font-size: 14px;
-        background: rgba(255, 255, 255, 0.05);
+        background: #f1f5f9;
         padding: 6px 12px;
         border-radius: 6px;
     }
@@ -398,11 +401,11 @@ include('header.php');
     }
 
     .loading {
-        color: rgba(255, 255, 255, 0.8);
+        color: var(--text-muted);
     }
 
     .no-results {
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--text-muted);
     }
 
     .error {
@@ -415,16 +418,16 @@ include('header.php');
     }
 
     .search-results::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.05);
+        background: #f1f5f9;
     }
 
     .search-results::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
+        background: #cbd5e1;
         border-radius: 4px;
     }
 
     .search-results::-webkit-scrollbar-thumb:hover {
-        background: rgba(255, 255, 255, 0.3);
+        background: #94a3b8;
     }
 
     /* تحديث تنسيقات الكروت */
@@ -435,11 +438,11 @@ include('header.php');
     }
 
     .year-card {
-        background: rgba(255, 255, 255, 0.05);
+        background: #ffffff;
         border-radius: var(--border-radius);
         padding: 24px;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: var(--box-shadow);
+        border: 1px solid #e2e8f0;
     }
 
     .year-header {
@@ -448,7 +451,7 @@ include('header.php');
         align-items: center;
         margin-bottom: 24px;
         padding-bottom: 16px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid #e2e8f0;
     }
 
     .year-info {
@@ -461,7 +464,7 @@ include('header.php');
         font-size: 24px;
         font-weight: 700;
         margin: 0;
-        color: var(--text-white);
+        color: var(--text-dark);
     }
 
     .current-year-badge {
@@ -483,7 +486,7 @@ include('header.php');
         align-items: center;
         gap: 8px;
         font-size: 14px;
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--text-muted);
     }
 
     .year-stats i {
@@ -529,15 +532,15 @@ include('header.php');
     }
 
     .month-card {
-        background: rgba(255, 255, 255, 0.03);
+        background: #ffffff;
         border-radius: var(--border-radius);
         padding: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        border: 1px solid #e2e8f0;
         transition: all 0.3s ease;
     }
 
     .month-card:hover {
-        background: rgba(255, 255, 255, 0.05);
+        background: #f8fafc;
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
@@ -558,7 +561,7 @@ include('header.php');
         font-size: 18px;
         font-weight: 600;
         margin: 0;
-        color: var(--text-white);
+        color: var(--text-dark);
         display: flex;
         align-items: center;
         gap: 8px;
@@ -571,8 +574,8 @@ include('header.php');
     }
 
     .month-badge {
-        background: rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.7);
+        background: #f1f5f9;
+        color: var(--text-muted);
         padding: 4px 8px;
         border-radius: 4px;
         font-size: 12px;
@@ -588,7 +591,7 @@ include('header.php');
         display: flex;
         align-items: center;
         gap: 12px;
-        color: rgba(255, 255, 255, 0.7);
+        color: var(--text-muted);
     }
 
     .stat-row i {
@@ -602,13 +605,13 @@ include('header.php');
     }
 
     .stat-number {
-        color: var(--text-white);
+        color: var(--text-dark);
         font-weight: 500;
     }
 
     .stat-label {
         font-size: 12px;
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--text-muted);
     }
 
     .btn-view-details {
@@ -617,8 +620,8 @@ include('header.php');
         justify-content: space-between;
         width: 100%;
         padding: 12px 16px;
-        background: rgba(0, 97, 242, 0.1);
-        border: 1px solid rgba(0, 97, 242, 0.2);
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
         border-radius: var(--border-radius);
         color: var(--primary-blue);
         text-decoration: none;
@@ -627,8 +630,8 @@ include('header.php');
     }
 
     .btn-view-details:hover {
-        background: rgba(0, 97, 242, 0.15);
-        border-color: rgba(0, 97, 242, 0.3);
+        background: #dbeafe;
+        border-color: #93c5fd;
         transform: translateY(-1px);
     }
 </style>
@@ -692,6 +695,13 @@ include('header.php');
                                     </div>
                                 </div>
                             `;
+
+                                // Add click handler to navigate to month details
+                                resultItem.addEventListener('click', function() {
+                                    if (result.year && result.month) {
+                                        window.location.href = `month_details.php?year=${result.year}&month=${result.month}`;
+                                    }
+                                });
 
                                 searchResults.appendChild(resultItem);
                             });

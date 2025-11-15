@@ -1,6 +1,7 @@
 <?php 
 require_once __DIR__ . '/classes/Security.php';
-include "header.php" 
+$BASE_PATH_PREFIX = '';
+require_once __DIR__ . '/layout.php';
 ?>
 
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 page-section">
@@ -39,6 +40,12 @@ include "header.php"
                 $totalRows = 0;
             }
             $totalPages = ($totalRows > 0) ? ceil($totalRows / $perPage) : 1;
+            
+            // Ensure current page doesn't exceed total pages
+            if ($currentPage > $totalPages && $totalPages > 0) {
+                $currentPage = $totalPages;
+                $offset = ($currentPage - 1) * $perPage;
+            }
 
             // Paginated fetch
             $sql = "SELECT * FROM `donators` ORDER BY NO ASC LIMIT $perPage OFFSET $offset";
@@ -49,49 +56,97 @@ include "header.php"
                 if ($donators && count($donators) > 0) {
                     echo "<div class='card card-elevated'><div class='card-body p-0'><div class='table-responsive'>";
                     echo "<table class='table table-striped table-modern m-0'>";
-                    echo "<thead><tr><th>الرقم</th><th>الاسم</th><th>رقم الهاتف</th><th class='text-nowrap'>العمليات</th></tr></thead>";
+                    echo "<thead><tr><th class='text-center'>الرقم</th><th class='text-center'>الاسم</th><th class='text-center'>رقم الهاتف</th><th class='text-center text-nowrap'>العمليات</th></tr></thead>";
                     echo "<tbody id='donatorsTable'>";
+                    $rowNumber = $offset + 1; // Sequential numbering starting from current page
                     foreach ($donators as $row) {
                         echo "<tr id='row_" . $row['NO'] . "'>";
-                        echo "<td>" . $row['NO'] . "</td>";
-                        echo "<td class='editable' data-id='" . $row['NO'] . "' data-field='ADI'>" . htmlspecialchars($row['ADI']) . "</td>";
-                        echo "<td class='editable' data-id='" . $row['NO'] . "' data-field='TEL'>" . htmlspecialchars($row['TEL']) . "</td>";
-                        echo "<td class='text-nowrap'>
+                        echo "<td class='text-center'>" . $rowNumber . "</td>";
+                        echo "<td class='text-center editable' data-id='" . $row['NO'] . "' data-field='ADI'>" . htmlspecialchars($row['ADI']) . "</td>";
+                        echo "<td class='text-center editable' data-id='" . $row['NO'] . "' data-field='TEL'>" . htmlspecialchars($row['TEL']) . "</td>";
+                        echo "<td class='text-center text-nowrap'>
                         <button class='btn btn-warning btn-sm btn-icon edit-btn' data-id='" . $row['NO'] . "'><i class='bi bi-pencil-square'></i><span>تعديل</span></button>
                         <a href='secure_delete_donators.php?NO=" . $row['NO'] . "' class='btn btn-danger btn-sm btn-icon ms-2' onclick='return confirm(\"هل أنت متأكد من الحذف؟\")'><i class='bi bi-trash'></i><span>حذف</span></a>
                         </td>";
                         echo "</tr>";
+                        $rowNumber++;
                     }
                     echo "</tbody></table></div></div></div>";
 
-                    // Pagination controls
+                    // Pagination controls - matching help.php style
                     if ($totalPages > 1) {
-                        echo "<div class='pagination-wrapper' style='display:flex;justify-content:center;align-items:center;margin:20px 0;'>";
-                        echo "<nav aria-label='Pagination' style='width:auto;'><ul class='pagination pagination-sm mb-0 flex-wrap' style='gap:2px;'>";
                         $urlBase = basename(__FILE__);
-                        $separator = '?';
-                        // Previous
+                        $queryParams = [];
+                        $queryString = !empty($queryParams) ? '&' . implode('&', $queryParams) : '';
+                        $separator = empty($queryParams) ? '?' : '&';
+                        
+                        echo "<div class='pagination-container'>";
+                        echo "<div class='pagination-info'>";
+                        $startRecord = $offset + 1;
+                        $endRecord = min($offset + $perPage, $totalRows);
+                        echo "<span>عرض " . $startRecord . " - " . $endRecord . " من " . $totalRows . " نتيجة</span>";
+                        echo "</div>";
+                        
+                        echo "<nav aria-label='Pagination' class='pagination-nav'>";
+                        echo "<ul class='pagination'>";
+                        
+                        // First page
                         if ($currentPage > 1) {
-                            echo "<li class='page-item'><a class='page-link' href='$urlBase{$separator}page=" . ($currentPage - 1) . "'>&laquo;</a></li>";
+                            echo "<li class='page-item'><a class='page-link' href='$urlBase?page=1$queryString' title='الصفحة الأولى'><i class='bi bi-chevron-double-right'></i></a></li>";
                         } else {
-                            echo "<li class='page-item disabled'><span class='page-link'>&laquo;</span></li>";
+                            echo "<li class='page-item disabled'><span class='page-link'><i class='bi bi-chevron-double-right'></i></span></li>";
                         }
-                        // Pages 
-                        for ($i = 1; $i <= $totalPages; $i++) {
+                        
+                        // Previous page
+                        if ($currentPage > 1) {
+                            echo "<li class='page-item'><a class='page-link' href='$urlBase?page=" . ($currentPage - 1) . "$queryString' title='السابق'><i class='bi bi-chevron-right'></i></a></li>";
+                        } else {
+                            echo "<li class='page-item disabled'><span class='page-link'><i class='bi bi-chevron-right'></i></span></li>";
+                        }
+                        
+                        // Page numbers with smart ellipsis
+                        $startPage = max(1, $currentPage - 2);
+                        $endPage = min($totalPages, $currentPage + 2);
+                        
+                        if ($startPage > 1) {
+                            echo "<li class='page-item'><a class='page-link' href='$urlBase?page=1$queryString'>1</a></li>";
+                            if ($startPage > 2) {
+                                echo "<li class='page-item disabled'><span class='page-link'>...</span></li>";
+                            }
+                        }
+                        
+                        for ($i = $startPage; $i <= $endPage; $i++) {
                             if ($i == $currentPage) {
                                 echo "<li class='page-item active'><span class='page-link'>$i</span></li>";
                             } else {
-                                echo "<li class='page-item'><a class='page-link' href='$urlBase{$separator}page=$i'>$i</a></li>";
+                                echo "<li class='page-item'><a class='page-link' href='$urlBase?page=$i$queryString'>$i</a></li>";
                             }
                         }
-                        // Next
-                        if ($currentPage < $totalPages) {
-                            echo "<li class='page-item'><a class='page-link' href='$urlBase{$separator}page=" . ($currentPage + 1) . "'>&raquo;</a></li>";
-                        } else {
-                            echo "<li class='page-item disabled'><span class='page-link'>&raquo;</span></li>";
+                        
+                        if ($endPage < $totalPages) {
+                            if ($endPage < $totalPages - 1) {
+                                echo "<li class='page-item disabled'><span class='page-link'>...</span></li>";
+                            }
+                            echo "<li class='page-item'><a class='page-link' href='$urlBase?page=$totalPages$queryString'>$totalPages</a></li>";
                         }
-                        echo "</ul></nav>";
-                        echo "</div>"; // end .pagination-wrapper
+                        
+                        // Next page
+                        if ($currentPage < $totalPages) {
+                            echo "<li class='page-item'><a class='page-link' href='$urlBase?page=" . ($currentPage + 1) . "$queryString' title='التالي'><i class='bi bi-chevron-left'></i></a></li>";
+                        } else {
+                            echo "<li class='page-item disabled'><span class='page-link'><i class='bi bi-chevron-left'></i></span></li>";
+                        }
+                        
+                        // Last page
+                        if ($currentPage < $totalPages) {
+                            echo "<li class='page-item'><a class='page-link' href='$urlBase?page=$totalPages$queryString' title='الصفحة الأخيرة'><i class='bi bi-chevron-double-left'></i></a></li>";
+                        } else {
+                            echo "<li class='page-item disabled'><span class='page-link'><i class='bi bi-chevron-double-left'></i></span></li>";
+                        }
+                        
+                        echo "</ul>";
+                        echo "</nav>";
+                        echo "</div>";
                     }
                 } else {
                     echo "<div class='card card-elevated'><div class='card-body'><div class='empty-state'>لا يوجد متبرعون حاليا</div></div></div>";
@@ -110,31 +165,59 @@ include "header.php"
 
 <script>
     $(document).ready(function () {
-        // Toggle row editing
-        $('.edit-btn').click(function () {
+        // Toggle row editing - use event delegation for dynamically loaded content
+        $(document).on('click', '.edit-btn', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
             var rowId = $(this).data('id');
             var button = $(this);
+            var row = $('#row_' + rowId);
+            
+            // Check if we're in edit mode by looking for input fields
+            var isEditMode = row.find('input.form-control').length > 0;
 
-            // If button is in "Edit" mode
-            if (button.text() === 'تعديل') {
-                // Convert table cells to input fields
-                var name = $('#row_' + rowId).find('td:eq(1)').text();
-                var tel = $('#row_' + rowId).find('td:eq(2)').text();
+            if (!isEditMode) {
+                // Enter edit mode
+                var name = row.find('td:eq(1)').text().trim();
+                var tel = row.find('td:eq(2)').text().trim();
 
-                $('#row_' + rowId).find('td:eq(1)').html('<input type="text" class="form-control" value="' + name + '" id="name_' + rowId + '">');
-                $('#row_' + rowId).find('td:eq(2)').html('<input type="text" class="form-control" value="' + tel + '" id="tel_' + rowId + '">');
+                // Escape HTML for input values
+                function escapeHtml(text) {
+                    var map = {
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#039;'
+                    };
+                    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+                }
 
-                // Change button text to "Confirm"
-                button.text('تأكيد');
+                row.find('td:eq(1)').html('<input type="text" class="form-control" value="' + escapeHtml(name) + '" id="name_' + rowId + '">');
+                row.find('td:eq(2)').html('<input type="text" class="form-control" value="' + escapeHtml(tel) + '" id="tel_' + rowId + '">');
+
+                // Change button to "Confirm"
+                button.html('<i class="bi bi-check2-circle"></i><span>تأكيد</span>').removeClass('btn-warning').addClass('btn-success');
             } else {
-                // Get updated values
-                var updatedName = $('#name_' + rowId).val();
-                var updatedTel = $('#tel_' + rowId).val();
+                // Save changes
+                var updatedName = $('#name_' + rowId).val().trim();
+                var updatedTel = $('#tel_' + rowId).val().trim();
+
+                // Validate that all fields are filled
+                if (!updatedName || !updatedTel) {
+                    alert('يرجى ملء جميع الحقول');
+                    return;
+                }
+
+                // Disable button during request
+                button.prop('disabled', true).html('<span>جاري الحفظ...</span>');
 
                 // Perform AJAX request to update the data
                 $.ajax({
                     url: 'secure_update_donator.php',
                     method: 'POST',
+                    dataType: 'json',
                     data: {
                         NO: rowId,
                         ADI: updatedName,
@@ -142,16 +225,31 @@ include "header.php"
                         csrf_token: '<?php echo Security::generateCSRFToken(); ?>'
                     },
                     success: function (response) {
-                        if (response === 'success') {
+                        if (response.status === 'success') {
                             // Replace inputs with updated text
-                            $('#row_' + rowId).find('td:eq(1)').text(updatedName);
-                            $('#row_' + rowId).find('td:eq(2)').text(updatedTel);
+                            row.find('td:eq(1)').text(updatedName);
+                            row.find('td:eq(2)').text(updatedTel);
 
-                            // Change button text back to "Edit"
-                            button.text('تعديل');
+                            // Change button back to "Edit"
+                            button.html('<i class="bi bi-pencil-square"></i><span>تعديل</span>').removeClass('btn-success').addClass('btn-warning').prop('disabled', false);
                         } else {
-                            alert('Failed to update. Please try again.');
+                            alert('فشل التحديث: ' + (response.message || 'حدث خطأ'));
+                            button.html('<i class="bi bi-check2-circle"></i><span>تأكيد</span>').prop('disabled', false);
                         }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', xhr.responseText);
+                        var errorMessage = 'حدث خطأ أثناء التحديث';
+                        try {
+                            var errorResponse = JSON.parse(xhr.responseText);
+                            if (errorResponse.message) {
+                                errorMessage = errorResponse.message;
+                            }
+                        } catch (e) {
+                            errorMessage = error;
+                        }
+                        alert(errorMessage);
+                        button.html('<i class="bi bi-check2-circle"></i><span>تأكيد</span>').prop('disabled', false);
                     }
                 });
             }
@@ -180,3 +278,131 @@ include "header.php"
         }
     }
 </script>
+
+<style>
+  /* Pagination Styles - matching help.php */
+  .pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 30px;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .pagination-info {
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .pagination-nav {
+    display: flex;
+    align-items: center;
+  }
+
+  .pagination {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .page-item {
+    margin: 0;
+  }
+
+  .page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 8px 12px;
+    color: #475569;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .page-link:hover:not(.disabled):not(.active) {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #0ea5e9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .page-item.active .page-link {
+    background-color: #0ea5e9;
+    border-color: #0ea5e9;
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+  }
+
+  .page-item.disabled .page-link {
+    color: #cbd5e1;
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .page-link i {
+    font-size: 16px;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .pagination-container {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .pagination-info {
+      text-align: center;
+      width: 100%;
+    }
+
+    .pagination-nav {
+      justify-content: center;
+      width: 100%;
+    }
+
+    .pagination {
+      justify-content: center;
+    }
+
+    .page-link {
+      min-width: 36px;
+      height: 36px;
+      padding: 6px 10px;
+      font-size: 13px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .page-link {
+      min-width: 32px;
+      height: 32px;
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+
+    .page-link i {
+      font-size: 14px;
+    }
+  }
+</style>
