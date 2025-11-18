@@ -22,23 +22,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->beginTransaction();
         
         // Validate and sanitize inputs
-        $report_name = trim($_POST['report_name'] ?? '');
+        $report_name  = trim($_POST['report_name'] ?? '');
         $report_month = $_POST['report_month'] ?? '';
-        $report_type = $_POST['report_type'] ?? 'monthly';
-        $status = $_POST['status'] ?? 'draft';
+        $report_year  = $_POST['report_year'] ?? '';
+        $report_type  = $_POST['report_type'] ?? 'monthly';
+        $status       = $_POST['status'] ?? 'draft';
         
         // Validation
         if (empty($report_name)) {
             throw new Exception('اسم التقرير مطلوب');
         }
-        
-        if (empty($report_month)) {
-            throw new Exception('شهر التقرير مطلوب');
-        }
-        
-        // Validate date format
-        if (!preg_match('/^\d{4}-\d{2}$/', $report_month)) {
-            throw new Exception('صيغة التاريخ غير صحيحة');
+
+        // Determine stored report_month value based on type
+        if ($report_type === 'annual') {
+            if (empty($report_year)) {
+                throw new Exception('سنة التقرير مطلوبة للتقرير السنوي');
+            }
+            if (!preg_match('/^\d{4}$/', $report_year)) {
+                throw new Exception('صيغة السنة غير صحيحة');
+            }
+            // Store as last day of the year (e.g. 2024-12-31) to avoid month conflicts
+            $report_month_value = $report_year . '-12-31';
+        } else {
+            if (empty($report_month)) {
+                throw new Exception('شهر التقرير مطلوب');
+            }
+            // Validate date format YYYY-MM
+            if (!preg_match('/^\d{4}-\d{2}$/', $report_month)) {
+                throw new Exception('صيغة التاريخ غير صحيحة');
+            }
+            $report_month_value = $report_month . '-01';
         }
         
         $user_id = getCurrentUserId();
@@ -50,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ");
         $stmt->execute([
             ':report_name' => $report_name,
-            ':report_month' => $report_month . '-01',
+            ':report_month' => $report_month_value,
             ':report_type' => $report_type,
             ':created_by' => $user_id,
             ':status' => $status

@@ -145,7 +145,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </svg>
 
     <!-- Mobile Menu Toggle Button -->
-    <button class="btn btn-primary d-md-none position-fixed top-0 end-0 m-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" style="z-index: 1050; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+    <button class="btn btn-primary d-md-none position-fixed top-0 end-0 m-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-label="Toggle sidebar" style="z-index: 1050; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
         <i class="fas fa-bars"></i>
     </button>
 
