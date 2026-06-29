@@ -1,9 +1,9 @@
 <?php
 $BASE_PATH_PREFIX = '';
 require_once __DIR__ . '/layout.php';
-include "db_conn.php";
-include "donators_db.php";
-include "reports_db.php";
+include "general_beneficiaries/db_conn.php";
+include "donators/donators_db.php";
+include "reports/reports_db.php";
 include "urgent_subsidies/db_connection.php";
 include "productive_family/db_connection.php";
 include "customized_subsidies/db_connection.php";

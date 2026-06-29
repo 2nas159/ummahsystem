@@ -19,7 +19,7 @@ ob_start();
 <div class="sidebar-nav flex-column p-0 pt-lg-3 overflow-y-auto">
     <ul class="nav flex-column">
         <li class="nav-item">
-            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 <?php if ($current_page == 'home_admin.php' || $current_page == '../home_admin.php') {
+            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 <?php if (strpos($current_page, 'home_admin.php') !== false) {
                                                                                 echo 'active';
                                                                             } ?>" aria-current="page" href="<?php echo $BASE_PATH_PREFIX; ?>home_admin.php">
                 <i class="fas fa-home fa-fw"></i>
@@ -28,16 +28,16 @@ ob_start();
         </li>
 
         <li class="nav-item">
-            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 <?php if ($current_page == 'help.php' || $current_page == '../help.php') {
+            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 <?php if (strpos($current_page, 'general_beneficiaries/') !== false) {
                                                                                 echo 'active';
-                                                                            } ?>" href="<?php echo $BASE_PATH_PREFIX; ?>help.php">
+                                                                            } ?>" href="<?php echo $BASE_PATH_PREFIX; ?>general_beneficiaries/index.php">
                 <i class="fas fa-hands-helping fa-fw"></i>
                 <span>المساعدات</span>
             </a>
         </li>
 
         <li class="nav-item has-submenu">
-            <a class="nav-link d-flex align-items-center justify-content-between gap-2 px-3 py-2 <?php if ($current_page == 'customized_subsidies/index_customized.php' || $current_page == 'index_customized.php') {
+            <a class="nav-link d-flex align-items-center justify-content-between gap-2 px-3 py-2 <?php if (strpos($current_page, 'customized_subsidies/') !== false) {
                                                                                                         echo 'active';
                                                                                                     } ?>" href="<?php echo $BASE_PATH_PREFIX; ?>customized_subsidies/index_customized.php" role="button" aria-expanded="false" aria-controls="submenu-customized">
                 <span class="d-flex align-items-center gap-2">
@@ -48,7 +48,7 @@ ob_start();
             </a>
             <ul id="submenu-customized" class="submenu collapse" aria-label="إعانات مخصصة">
                 <li class="nav-item">
-                    <a class="nav-link px-3 py-2 ps-5 <?php if ($current_page == 'customized_subsidies/index_customized.php' || $current_page == 'index_customized.php') {
+                    <a class="nav-link px-3 py-2 ps-5 <?php if (strpos($current_page, 'customized_subsidies/index_customized.php') !== false) {
                                                             echo 'active';
                                                         } ?>" href="<?php echo $BASE_PATH_PREFIX; ?>customized_subsidies/index_customized.php">
                         <i class="fas fa-home fa-fw" style="margin-left: 10px;"></i>الرئيسية
@@ -78,7 +78,7 @@ ob_start();
         </li>
 
         <li class="nav-item has-submenu">
-            <a class="nav-link d-flex align-items-center justify-content-between gap-2 px-3 py-2 <?php if ($current_page == 'urgent_subsidies/index_urgent.php' || $current_page == 'index_urgent.php') {
+            <a class="nav-link d-flex align-items-center justify-content-between gap-2 px-3 py-2 <?php if (strpos($current_page, 'urgent_subsidies/') !== false) {
                                                                                                         echo 'active';
                                                                                                     } ?>" href="<?php echo $BASE_PATH_PREFIX; ?>urgent_subsidies/index_urgent.php" role="button" aria-expanded="false" aria-controls="submenu-urgent">
                 <span class="d-flex align-items-center gap-2">
@@ -89,7 +89,7 @@ ob_start();
             </a>
             <ul id="submenu-urgent" class="submenu collapse" aria-label="إعانات عاجلة">
                 <li class="nav-item">
-                    <a class="nav-link px-3 py-2 ps-5 <?php if ($current_page == 'urgent_subsidies/index_urgent.php' || $current_page == 'index_urgent.php') {
+                    <a class="nav-link px-3 py-2 ps-5 <?php if (strpos($current_page, 'urgent_subsidies/index_urgent.php') !== false) {
                                                             echo 'active';
                                                         } ?>" href="<?php echo $BASE_PATH_PREFIX; ?>urgent_subsidies/index_urgent.php">
                         <i class="fas fa-home fa-fw" style="margin-left: 10px;"></i>الرئيسية
@@ -104,7 +104,7 @@ ob_start();
         </li>
 
         <li class="nav-item has-submenu">
-            <a class="nav-link d-flex align-items-center justify-content-between gap-2 px-3 py-2 <?php if ($current_page == 'fitr/index.php' || $current_page == 'index.php') {
+            <a class="nav-link d-flex align-items-center justify-content-between gap-2 px-3 py-2 <?php if (strpos($current_page, 'fitr/') !== false || strpos($current_page, 'adha/') !== false) {
                                                                                                         echo 'active';
                                                                                                     } ?>" href="<?php echo $BASE_PATH_PREFIX; ?>fitr/index.php" role="button" aria-expanded="false" aria-controls="submenu-eids">
                 <span class="d-flex align-items-center gap-2">
@@ -115,14 +115,16 @@ ob_start();
             </a>
             <ul id="submenu-eids" class="submenu collapse" aria-label="الأعياد">
                 <li class="nav-item">
-                    <a class="nav-link px-3 py-2 ps-5 <?php if ($current_page == 'fitr/index.php' || $current_page == 'index.php') {
+                    <a class="nav-link px-3 py-2 ps-5 <?php if (strpos($current_page, 'fitr/') !== false) {
                                                             echo 'active';
                                                         } ?>" href="<?php echo $BASE_PATH_PREFIX; ?>fitr/index.php">
                         <i class="fas fa-moon fa-fw" style="margin-left: 10px;"></i>الفطر
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link px-3 py-2 ps-5" href="<?php echo $BASE_PATH_PREFIX; ?>adha/index.php">
+                    <a class="nav-link px-3 py-2 ps-5 <?php if (strpos($current_page, 'adha/') !== false) {
+                                                            echo 'active';
+                                                        } ?>" href="<?php echo $BASE_PATH_PREFIX; ?>adha/index.php">
                         <i class="fas fa-sun fa-fw" style="margin-left: 10px;"></i>الأضحي
                     </a>
                 </li>
@@ -130,27 +132,25 @@ ob_start();
         </li>
 
         <li class="nav-item">
-            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 <?php if ($current_page == 'donators.php' || $current_page == '../donators.php') {
+            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 <?php if (strpos($current_page, 'donators/') !== false) {
                                                                                 echo 'active';
-                                                                            } ?>" href="<?php echo $BASE_PATH_PREFIX; ?>donators.php">
+                                                                            } ?>" href="<?php echo $BASE_PATH_PREFIX; ?>donators/index.php">
                 <i class="fas fa-hand-holding-heart fa-fw"></i>
                 <span>المتبرعون</span>
             </a>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 <?php if ($current_page == 'view_reports.php' || $current_page == '../view_reports.php') {
+            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 <?php if (strpos($current_page, 'reports/') !== false) {
                                                                                 echo 'active';
-                                                                            } ?>" href="<?php echo $BASE_PATH_PREFIX; ?>view_reports.php">
+                                                                            } ?>" href="<?php echo $BASE_PATH_PREFIX; ?>reports/index.php">
                 <i class="fas fa-chart-bar fa-fw"></i>
                 <span>التقارير</span>
             </a>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 <?php if ($current_page == 'projects.php' || $current_page == '../projects.php') {
-                                                                                echo 'active';
-                                                                            } ?>" href="#">
+            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2" href="#">
                 <i class="fas fa-project-diagram fa-fw"></i>
                 <span>المشاريع</span>
             </a>
@@ -159,25 +159,25 @@ ob_start();
 
     <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-body-secondary text-uppercase small">
         <span>التقارير المحفوظة</span>
-        <a class="link-secondary" href="<?php echo $BASE_PATH_PREFIX; ?>reports.php" aria-label="إضافة تقرير جديد">
+        <a class="link-secondary" href="<?php echo $BASE_PATH_PREFIX; ?>reports/create.php" aria-label="إضافة تقرير جديد">
             <i class="fas fa-plus-circle"></i>
         </a>
     </h6>
     <ul class="nav flex-column mb-auto">
         <li class="nav-item">
-            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2" href="<?php echo $BASE_PATH_PREFIX; ?>quick_report.php?scope=current-month">
+            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2" href="<?php echo $BASE_PATH_PREFIX; ?>reports/quick.php?scope=current-month">
                 <i class="fas fa-file-alt fa-fw"></i>
                 <span>الشهر الحالي</span>
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2" href="<?php echo $BASE_PATH_PREFIX; ?>quick_report.php?scope=previous-month">
+            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2" href="<?php echo $BASE_PATH_PREFIX; ?>reports/quick.php?scope=previous-month">
                 <i class="fas fa-file-alt fa-fw"></i>
                 <span>الشهر السابق</span>
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2" href="<?php echo $BASE_PATH_PREFIX; ?>quick_report.php?scope=current-year">
+            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2" href="<?php echo $BASE_PATH_PREFIX; ?>reports/quick.php?scope=current-year">
                 <i class="fas fa-file-alt fa-fw"></i>
                 <span>تقرير نهاية العام</span>
             </a>
@@ -188,7 +188,7 @@ ob_start();
 
     <ul class="nav flex-column mb-auto">
         <li class="nav-item">
-            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 text-danger" href="<?php echo $BASE_PATH_PREFIX; ?>secure_logout.php">
+            <a class="nav-link d-flex align-items-center gap-2 px-3 py-2 text-danger" href="<?php echo $BASE_PATH_PREFIX; ?>auth/logout.php">
                 <i class="fas fa-sign-out-alt fa-fw"></i>
                 <span>خروج</span>
             </a>

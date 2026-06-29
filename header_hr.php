@@ -2,7 +2,7 @@
 
 if(!isset($_SESSION["username"]))
 {
-	header("location:login.php");
+	header("Location: auth/login.php");
 }
 
 $current_page = basename($_SERVER['PHP_SELF']);

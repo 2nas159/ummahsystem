@@ -1,5 +1,6 @@
 <?php
-require_once __DIR__ . '/secure_users_db.php';
+require_once __DIR__ . '/classes/User.php';
+require_once __DIR__ . '/classes/Security.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -16,7 +17,7 @@ if (!isset($_SESSION["username"])) {
 
 $isim = isset($_SESSION["isim"]) ? $_SESSION["isim"] : '';
 $profile_image = isset($_SESSION["profile_image"]) ? $_SESSION["profile_image"] : 'default.png';
-$current_page = basename($_SERVER['PHP_SELF']);
+$current_page = $_SERVER['PHP_SELF'];
 ?>
 
 <!doctype html>

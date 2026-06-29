@@ -4,7 +4,7 @@ session_start();
 
 
 if (!isset($_SESSION["username"])) {
-    header("location:login.php");
+    header("Location: auth/login.php");
 }
 include "header_hr.php";
 
@@ -73,7 +73,7 @@ $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
         if (detailsRow.is(':hidden')) {
             // Fetch report details via AJAX
             $.ajax({
-                url: 'fetch_report_details.php',
+                url: 'reports/fetch_details.php',
                 type: 'GET',
                 data: { file_name: encodeURIComponent(fileName) },  // Encode the file name
                 success: function (data) {
@@ -96,7 +96,7 @@ $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
     function deleteReport(fileName) {
         if (confirm('Are you sure you want to delete this report?')) {
             $.ajax({
-                url: 'delete_report.php',
+                url: 'reports/delete.php',
                 type: 'POST',
                 data: { file_name: fileName },
                 success: function (response) {
